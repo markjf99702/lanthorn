@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c2248"/><stop offset=".5" stop-color="#5a4466"/><stop offset=".64" stop-color="#d9875c"/><stop offset=".64" stop-color="#241d2c"/><stop offset="1" stop-color="#0c0b14"/></linearGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6dc9c"/><stop offset=".45" stop-color="#b7883c"/><stop offset="1" stop-color="#6d4c1a"/></linearGradient>
+    <radialGradient id="glow"><stop offset="0" stop-color="#fff3d0"/><stop offset=".3" stop-color="#ffd78e" stop-opacity=".8"/><stop offset="1" stop-color="#ffb35c" stop-opacity="0"/></radialGradient>
+    <clipPath id="lens"><circle cx="32" cy="32" r="19"/></clipPath>
+  </defs>
+  <rect width="64" height="64" fill="#0e0c0b"/>
+  <g clip-path="url(#lens)">
+    <rect x="8" y="8" width="48" height="48" fill="url(#sky)"/>
+    <path d="M18 42.5c3-4 7-5.5 10-5.5h9c3 0 6 2 9 5.5z" fill="#0b0910"/>
+    <path d="M30.2 38v-13.5h4.6V38zM29.4 24.6h6.2v1.2h-6.2zM30.6 20.2h3.8v4.4h-3.8zM30.4 20.4c.5-2.2 3.7-2.2 4.2 0z" fill="#0b0910"/>
+    <circle cx="32.5" cy="22.4" r="7" fill="url(#glow)"/>
+    <circle cx="32.5" cy="22.4" r="1.6" fill="#fff6dc"/>
+    <path d="M31.2 44h2.6l.6 1.4h-3.8zM30.4 47h4.2l.6 1.4h-5.4zM29.6 50.4h5.8l.8 1.4h-7.4z" fill="#ffd690" opacity=".55"/>
+  </g>
+  <circle cx="32" cy="32" r="20" fill="none" stroke="url(#brass)" stroke-width="2.8"/>
+</svg>

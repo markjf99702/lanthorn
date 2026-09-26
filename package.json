@@ -1,0 +1,15 @@
+{
+  "name": "lanthorn",
+  "private": true,
+  "type": "module",
+  "description": "A locked case, a journal and a brass eyeglass. After dark, a light on a rock that shouldn’t be there.",
+  "scripts": {
+    "start": "npx --yes http-server -c-1 -p 8080 .",
+    "test": "node --test test/unit.test.mjs && node test/e2e.mjs",
+    "build": "node scripts/build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "upng-js": "^2.1.0"
+  }
+}

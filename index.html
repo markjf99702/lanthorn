@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Lanthorn</title>
+  <meta name="description" content="A writing case, a journal and a brass eyeglass from a house clearance. Through the glass you can watch a lighthouse rock in another world at any hour. After dark there’s a second rock that shouldn’t be there, with a light that won’t stop signalling.">
+  <meta property="og:title" content="Lanthorn">
+  <meta property="og:description" content="A locked case, a journal and a brass eyeglass. After dark, a light on a rock that shouldn’t be there.">
+  <meta property="og:image" content="https://junkdrawer.works/lanthorn/og.png">
+  <meta property="og:url" content="https://junkdrawer.works/lanthorn/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#0b0a09">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="preload" href="fonts/im-fell-english.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/la-belle-aurore.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/lanthorn.css">
+</head>
+<body>
+  <!-- The house clearance. -->
+  <section class="screen intro" id="intro" aria-labelledby="introTitle">
+    <div class="intro-in">
+      <h1 id="introTitle">Lanthorn</h1>
+      <div id="introText" class="intro-text"></div>
+      <button type="button" class="btn" id="begin">Open the cupboard</button>
+      <p class="small" id="introSmall">Best with sound. About fifteen minutes.</p>
+    </div>
+  </section>
+
+  <!-- Nell's desk: everything starts and ends here. -->
+  <section class="screen desk" id="desk" hidden aria-label="The desk">
+    <div class="lamp" aria-hidden="true"></div>
+    <div class="desk-in">
+      <button type="button" class="thing case-thing" id="toCase" aria-label="The writing case">
+        <svg viewBox="0 0 340 240" aria-hidden="true">
+          <defs>
+            <clipPath id="caseClip"><rect width="340" height="240" rx="9"/></clipPath>
+            <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#f3d99a"/><stop offset=".35" stop-color="#c49647"/><stop offset=".7" stop-color="#8a632a"/><stop offset="1" stop-color="#d9b86e"/>
+            </linearGradient>
+            <radialGradient id="screw"><stop offset="0" stop-color="#f6e3b0"/><stop offset="1" stop-color="#7a5620"/></radialGradient>
+            <linearGradient id="lidShade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#fff" stop-opacity=".10"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".28"/>
+            </linearGradient>
+          </defs>
+          <g clip-path="url(#caseClip)">
+            <image data-tex="walnut" width="340" height="240" preserveAspectRatio="xMidYMid slice"/>
+            <rect width="340" height="240" fill="url(#lidShade)"/>
+            <rect x="20" y="20" width="300" height="200" rx="3" fill="none" stroke="#e7cf9c" stroke-opacity=".38" stroke-width="2"/>
+            <rect x="24" y="24" width="292" height="192" rx="2" fill="none" stroke="#000" stroke-opacity=".25"/>
+          </g>
+          <rect x=".5" y=".5" width="339" height="239" rx="9" fill="none" stroke="#000" stroke-opacity=".5"/>
+          <g fill="url(#brass)" stroke="#5b3f14" stroke-opacity=".6">
+            <path d="M0 9a9 9 0 0 1 9-9h33v12H12v30H0z"/><path d="M340 9a9 9 0 0 0-9-9h-33v12h30v30h12z"/>
+            <path d="M0 231a9 9 0 0 0 9 9h33v-12H12v-30H0z"/><path d="M340 231a9 9 0 0 1-9 9h-33v-12h30v-30h12z"/>
+          </g>
+          <g fill="url(#screw)"><circle cx="6" cy="6" r="2.3"/><circle cx="334" cy="6" r="2.3"/><circle cx="6" cy="234" r="2.3"/><circle cx="334" cy="234" r="2.3"/></g>
+          <g transform="translate(170 188)">
+            <rect x="-62" y="-26" width="124" height="52" rx="6" fill="url(#brass)" stroke="#4a3310" stroke-opacity=".7"/>
+            <g transform="translate(-40 0)" fill="none" stroke="#5a3e12" stroke-width="1.1">
+              <circle r="15"/><path d="M0-13L3-3 13 0 3 3 0 13-3 3-13 0-3-3z" fill="#5a3e12" fill-opacity=".45"/>
+            </g>
+            <g font-family="Cormorant Garamond, Times New Roman, serif" font-size="19" font-weight="600" text-anchor="middle" fill="#efe1c0" style="font-variant-numeric: lining-nums">
+              <rect x="-18" y="-12" width="16" height="24" rx="2" fill="#20170d"/><text id="caseD0" x="-10" y="6">0</text>
+              <rect x="2" y="-12" width="16" height="24" rx="2" fill="#20170d"/><text id="caseD1" x="10" y="6">0</text>
+              <rect x="22" y="-12" width="16" height="24" rx="2" fill="#20170d"/><text id="caseD2" x="30" y="6">0</text>
+            </g>
+          </g>
+          <g transform="translate(170 38)">
+            <rect x="-26" y="-8" width="52" height="16" rx="8" fill="url(#brass)" stroke="#4a3310" stroke-opacity=".6"/>
+            <rect x="-18" y="-3" width="36" height="6" rx="3" fill="#3b2a10" opacity=".55"/>
+          </g>
+        </svg>
+        <span class="thing-label">The writing case</span>
+      </button>
+
+      <button type="button" class="thing journal-thing" id="toJournal" aria-label="The journal">
+        <svg viewBox="0 0 200 282" aria-hidden="true">
+          <defs>
+            <clipPath id="jClip"><rect width="186" height="248" rx="7"/></clipPath>
+            <radialGradient id="jWear" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#c9a877" stop-opacity=".22"/></radialGradient>
+          </defs>
+          <rect x="10" y="6" width="186" height="250" rx="5" fill="#e3d6b8"/>
+          <path d="M190 12v236M193 14v232M14 252h172M16 255h168" stroke="#b8a582" stroke-width=".8"/>
+          <path d="M58 244q-4 22 -14 34l10-2 6 6q4-20 6-38z" fill="#6d1f1a"/>
+          <g clip-path="url(#jClip)">
+            <image data-tex="journal" width="186" height="248" preserveAspectRatio="xMidYMid slice"/>
+            <rect width="186" height="248" fill="url(#jWear)"/>
+          </g>
+          <rect x="12" y="12" width="162" height="224" rx="3" fill="none" stroke="#000" stroke-opacity=".35" stroke-width="1.4"/>
+          <rect x="13" y="13" width="162" height="224" rx="3" fill="none" stroke="#e4c995" stroke-opacity=".12"/>
+          <rect x="144" y="0" width="10" height="248" fill="#17110b"/><rect x="145" y="0" width="2" height="248" fill="#fff" opacity=".07"/>
+          <text x="118" y="222" font-family="IM Fell English, serif" font-size="13" fill="#c8a462" opacity=".55" text-anchor="end">N. H.</text>
+        </svg>
+        <span class="thing-label">Journal</span>
+      </button>
+
+      <button type="button" class="thing glass-thing" id="toGlass" aria-label="The brass eyeglass">
+        <svg viewBox="0 0 90 330" aria-hidden="true">
+          <defs>
+            <linearGradient id="tube" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#4a3512"/><stop offset=".18" stop-color="#b58a3c"/><stop offset=".34" stop-color="#f4dc9a"/><stop offset=".5" stop-color="#c79a47"/><stop offset=".78" stop-color="#7d5c24"/><stop offset="1" stop-color="#3a290d"/>
+            </linearGradient>
+            <linearGradient id="wrap" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#140d08"/><stop offset=".35" stop-color="#4b3526"/><stop offset=".6" stop-color="#2a1d13"/><stop offset="1" stop-color="#0e0906"/>
+            </linearGradient>
+          </defs>
+          <rect x="34" y="2" width="22" height="24" rx="3" fill="url(#tube)"/>
+          <rect x="30" y="24" width="30" height="8" rx="2" fill="url(#tube)"/>
+          <rect x="31" y="32" width="28" height="80" fill="url(#tube)"/>
+          <rect x="26" y="110" width="38" height="9" rx="2" fill="url(#tube)"/>
+          <rect x="27" y="119" width="36" height="72" fill="url(#tube)"/>
+          <rect x="22" y="189" width="46" height="10" rx="2" fill="url(#tube)"/>
+          <rect x="23" y="199" width="44" height="102" fill="url(#tube)"/>
+          <rect x="23" y="214" width="44" height="72" fill="url(#wrap)"/>
+          <path d="M23 222h44M23 278h44" stroke="#000" stroke-opacity=".4"/>
+          <path d="M19 299h52l4 22H15z" fill="url(#tube)"/>
+          <rect x="15" y="319" width="60" height="7" rx="2" fill="url(#tube)"/>
+        </svg>
+        <span class="thing-label">Eyeglass</span>
+      </button>
+    </div>
+    <button type="button" class="stuck" id="stuckBtn">Stuck?</button>
+  </section>
+
+  <!-- The journal. -->
+  <section class="screen reader" id="journal" hidden aria-label="Nell’s journal">
+    <div class="page paper" id="jPage" aria-live="polite"></div>
+    <nav class="pager">
+      <button type="button" class="arrow" id="jPrev" aria-label="Previous page">‹</button>
+      <span id="jNum"></span>
+      <button type="button" class="arrow" id="jNext" aria-label="Next page">›</button>
+    </nav>
+  </section>
+
+  <!-- The eyeglass. -->
+  <section class="screen glass" id="glass" hidden aria-label="The eyeglass">
+    <div class="glass-in">
+      <div class="readout" aria-live="off">
+        <span class="drum"><span id="dr0">2</span></span><span class="drum"><span id="dr1">4</span></span><span class="drum"><span id="dr2">5</span></span><span class="deg">°</span>
+      </div>
+      <div class="lens-wrap" id="lensWrap">
+        <canvas class="ring" id="ring" aria-hidden="true"></canvas>
+        <div class="lens">
+          <canvas id="lens" tabindex="0" aria-label="The view through the eyeglass. Drag to look around; arrow keys work too."></canvas>
+          <div class="reticle" aria-hidden="true"></div>
+        </div>
+      </div>
+      <div class="hourwheel" id="hourWheel" role="slider" tabindex="0" aria-label="Hour of the day in Lanthorn" aria-valuemin="0" aria-valuemax="24">
+        <canvas id="hourDial" aria-hidden="true"></canvas>
+      </div>
+      <p class="hint" id="glassHint">Drag the view to look around. Turn the wheel for a different hour.</p>
+    </div>
+  </section>
+
+  <!-- The writing case, close up. -->
+  <section class="screen case" id="case" hidden aria-label="The writing case">
+    <div class="case-in" id="caseShut">
+      <div class="lid">
+        <div class="lock">
+          <div class="rose" aria-hidden="true">
+            <svg viewBox="-40 -40 80 80"><circle r="36" fill="none" stroke="currentColor" stroke-width="1.2"/><circle r="30" fill="none" stroke="currentColor" stroke-width=".6"/><path d="M0-34L5-5 34 0 5 5 0 34-5 5-34 0-5-5z" fill="currentColor" fill-opacity=".35" stroke="currentColor" stroke-width=".8"/><path d="M0-34L5-5 0 0z" fill="currentColor"/><text y="-26" text-anchor="middle" font-size="9" fill="currentColor" dy="-10">N</text></svg>
+          </div>
+          <div class="wheels" id="wheels"></div>
+        </div>
+      </div>
+      <p class="hint">Where the light stands.</p>
+    </div>
+    <div class="case-in open" id="caseOpen" hidden>
+      <div class="tray">
+        <button type="button" class="book-thing" id="toBook" aria-label="The book">
+          <span class="book-cover-mini"><span class="plate-mini" aria-hidden="true"></span></span>
+        </button>
+        <button type="button" class="letter-thing paper" id="toLetter" aria-label="A folded letter">
+          <span class="hand">To whoever opens this</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- The letter in the case, and the page in the far lamp room. -->
+  <section class="screen reader" id="letter" hidden aria-label="A letter">
+    <div class="page paper letter" id="letterPage"></div>
+  </section>
+
+  <!-- The book: a star clasp, then the picture. -->
+  <section class="screen book" id="book" hidden aria-label="The book">
+    <div class="cover" id="cover">
+      <div class="clasp" id="clasp" role="group" aria-label="A brass plate of studs, twenty-five in a square"></div>
+      <p class="hint">What stands over it.</p>
+    </div>
+    <div class="opened paper" id="opened" hidden>
+      <p class="book-line hand" id="bookLine"></p>
+      <div class="panel-frame">
+        <canvas id="panel" tabindex="0" aria-label="The linking picture. It’s dark. Tap for a short flash, hold for a long one."></canvas>
+      </div>
+      <p class="marks" id="marks" aria-live="polite"></p>
+      <p class="hint" id="panelHint">Tap for a short flash. Hold for a long one.</p>
+    </div>
+  </section>
+
+  <!-- Linking. -->
+  <div class="flash" id="flash" hidden></div>
+
+  <!-- The far rock. -->
+  <section class="screen far" id="far" hidden aria-label="The lamp room on the far rock">
+    <canvas id="farView" aria-label="Through the lamp room window: the sea at night, and Nell’s lighthouse across the water, dark."></canvas>
+    <div class="window" aria-hidden="true"></div>
+    <div class="warm" id="warm" aria-hidden="true"></div>
+    <button type="button" class="sill-page paper" id="sillPage" hidden><span class="hand">You came.</span></button>
+    <button type="button" class="lever" id="lever" hidden aria-label="The lamp’s shutter. Hold to open it."><span class="lever-arm"></span><span class="lever-label">Shutter</span></button>
+    <p class="far-text" id="farText" aria-live="polite"></p>
+  </section>
+
+  <!-- The end. -->
+  <section class="screen end" id="end" hidden aria-labelledby="endTitle">
+    <div class="end-in">
+      <div id="endText" class="end-text"></div>
+      <h2 id="endTitle">Lanthorn</h2>
+      <div class="end-btns" id="endBtns">
+        <button type="button" class="btn" id="endLook">Look through the glass</button>
+        <button type="button" class="btn quiet" id="endAgain">Start again</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hints. -->
+  <div class="sheet" id="hints" hidden role="dialog" aria-modal="true" aria-labelledby="hintsTitle">
+    <div class="sheet-in paper">
+      <h2 id="hintsTitle">A nudge</h2>
+      <ol id="hintList"></ol>
+      <div class="sheet-btns">
+        <button type="button" class="btn small-btn" id="hintMore">Another</button>
+        <button type="button" class="btn quiet small-btn" id="hintClose">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <button type="button" class="back" id="back" hidden aria-label="Back to the desk">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+  </button>
+  <button type="button" class="sound" id="soundBtn" aria-pressed="true" aria-label="Sound">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path class="spk" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="waves" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/><path class="mute" d="M15.5 9.5l5 5m0-5l-5 5"/></svg>
+  </button>
+
+  <noscript><p class="noscript">Lanthorn needs JavaScript to draw the sea and work the locks.</p></noscript>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
