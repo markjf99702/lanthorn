@@ -136,6 +136,7 @@ export function createBook(els, { onOpen, onWake, onLink }) {
   panel.addEventListener('pointerup', () => up());
   panel.addEventListener('pointercancel', () => up());
   panel.addEventListener('click', () => { if (state.awake) onLink(); });
+  panel.addEventListener('contextmenu', e => e.preventDefault());
   panel.addEventListener('keydown', e => {
     if (e.key !== ' ' && e.key !== 'Enter') return;
     e.preventDefault();

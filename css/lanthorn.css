@@ -36,6 +36,7 @@ body {
 }
 button { font: inherit; color: inherit; }
 [hidden] { display: none !important; }
+canvas, .lever, .stud, .wheel .win, .hourwheel { -webkit-touch-callout: none; }
 .hand { font-family: var(--hand); }
 
 .screen {
