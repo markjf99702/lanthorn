@@ -1,6 +1,6 @@
 # Lanthorn
 
-**Play it: [junkdrawer.works/lanthorn](https://junkdrawer.works/lanthorn/)**
+**Play it: [lanthorn.junkdrawer.works](https://lanthorn.junkdrawer.works/)**
 
 **A locked writing case, a journal and a brass eyeglass, left in a cupboard by someone who wrote a world and went into it.** Through the eyeglass you can watch that world, one rock with a lighthouse and the sea all the way round, at any hour you like. At dusk a second rock appears that she never wrote, and after dark a light on it flashes the same thing all night. Open the case, then the book inside it, and follow her.
 
