@@ -324,6 +324,38 @@ async function resizes(query, id, ms) {
   await p.close();
 }
 
+// Pinched in to read her hand, a sideways drag moves the view along the line and leaves the page where it is.
+// Pinched out again, a swipe turns the page as before.
+{
+  const p = await open('?fresh&at=journal&page=5');
+  const touch = await more.newCDPSession(p);
+  const b = await p.locator('#jPage').boundingBox();
+  const x = b.x + b.width / 2, y = b.y + b.height / 2;
+  // One point per finger, from where it lands to where it lifts.
+  async function fingers(from, to) {
+    await touch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: from.map(([x, y], id) => ({ x, y, id })) });
+    for (let i = 1; i <= 12; i++) {
+      await p.waitForTimeout(20);
+      await touch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: from.map(([x0, y0], id) => ({ x: x0 + (to[id][0] - x0) * i / 12, y: y0 + (to[id][1] - y0) * i / 12, id })) });
+    }
+    await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await p.waitForTimeout(500);
+  }
+  const view = () => p.evaluate(() => ({ scale: visualViewport.scale, left: visualViewport.offsetLeft, page: window.__lanthorn.state.page }));
+  await fingers([[x - 20, y], [x + 20, y]], [[x - 90, y], [x + 90, y]]);
+  const zoomed = await view();
+  assert.ok(zoomed.scale > 1.5, `pinching didn't zoom in (${zoomed.scale})`);
+  await fingers([[x - 80, y]], [[x + 80, y]]);
+  const along = await view();
+  assert.equal(along.page, 5, 'a sideways drag turned the page while pinched in');
+  assert.ok(Math.abs(along.left - zoomed.left) > 20, 'a sideways drag didn\'t move the pinched-in view');
+  await fingers([[x - 90, y], [x + 90, y]], [[x - 10, y], [x + 10, y]]);
+  assert.equal((await view()).scale, 1, 'pinching out didn\'t zoom back out');
+  await fingers([[x + 120, y]], [[x - 120, y]]);
+  assert.equal((await view()).page, 6, 'pinched out again, a swipe doesn\'t turn the page');
+  await p.close();
+}
+
 // While the hint sheet is up the keyboard stays on it, so nothing behind it can be opened, and closing it
 // gives focus back to Stuck?. On paper the focus ring is ink, because brass hardly shows there.
 const INK = 'rgb(51, 38, 26)';

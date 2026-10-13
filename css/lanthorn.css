@@ -143,6 +143,8 @@ canvas, .lever, .stud, .wheel .win, .hourwheel { -webkit-touch-callout: none; }
   /* A sideways swipe is left to the page, which turns it; up and down still scroll, and pinching still zooms. */
   touch-action: pan-y pinch-zoom;
 }
+/* Pinched in, a sideways drag moves the view along the line instead. */
+.zoomed .page { touch-action: auto; }
 .page .date { font-family: var(--hand); font-size: 1.1rem; color: var(--ink-soft); margin: 0 0 .7rem; }
 .page .entry p { font-family: var(--hand); font-size: clamp(1.18rem, 4.9vw, 1.42rem); line-height: 1.55; margin: 0 0 .9rem; }
 .page .sketch { display: block; width: 100%; max-width: 380px; margin: .6rem auto 0; color: var(--ink); }

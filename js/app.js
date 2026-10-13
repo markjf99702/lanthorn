@@ -111,6 +111,12 @@ document.addEventListener('keydown', e => {
     const dx = e.clientX - sx, dy = e.clientY - sy;
     if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) turnPage(dx < 0 ? 1 : -1);
   });
+  // Pinched in to read her hand, a sideways drag should follow the line, not turn the page, so the browser gets
+  // sideways drags back until you pinch out again.
+  const vv = window.visualViewport;
+  const zoomed = () => document.documentElement.classList.toggle('zoomed', !!vv && vv.scale > 1.01);
+  vv?.addEventListener('resize', zoomed);
+  zoomed();
 }
 
 // ---------- the case ----------
