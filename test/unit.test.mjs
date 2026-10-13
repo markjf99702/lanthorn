@@ -152,6 +152,9 @@ test('a garbled save keeps what still makes sense, and the rest starts afresh', 
   assert.deepEqual(tidy({ digits: '245' }).digits, [0, 0, 0]);
   assert.deepEqual(tidy({ digits: [2, 4, 12] }).digits, [0, 0, 0]);
   assert.deepEqual(tidy({ studs: [[1, 0], 'x', [2, 2.5], [0, 1]] }).studs, [[1, 0], [0, 1]]);
+  assert.equal(tidy({ hours: 25 }).hours, 1, 'an hour past midnight goes round the clock');
+  assert.equal(tidy({ hours: -0.5 }).hours, 23.5);
+  assert.equal(tidy({ hours: 24 }).hours, 0);
 });
 
 test('a real save comes through tidying unchanged', () => {

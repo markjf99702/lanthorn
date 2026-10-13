@@ -32,6 +32,8 @@ export function tidy(s) {
   if (!(Array.isArray(s.digits) && s.digits.length === 3 && s.digits.every(digit))) s.digits = f.digits;
   s.studs = Array.isArray(s.studs) ? s.studs.filter(p => Array.isArray(p) && p.length === 2 && p.every(Number.isInteger)) : f.studs;
   for (const k of ['hours', 'heading', 'pitch']) if (!Number.isFinite(s[k])) s[k] = f[k];
+  // An hour off the clock goes round it, as the wheel does. One already on it is left exactly as it was.
+  if (s.hours < 0 || s.hours >= 24) s.hours = ((s.hours % 24) + 24) % 24;
   return s;
 }
 
