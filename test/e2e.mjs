@@ -373,6 +373,29 @@ const focused = p => p.evaluate(() => {
   await p.close();
 }
 
+// While the wrong studs shake loose the plate takes no more presses, so a press then isn't thrown away with
+// them, and once they're out it takes presses again.
+{
+  const p = await open('?fresh&at=book&shut');
+  const during = await p.evaluate(() => new Promise(resolve => {
+    const stud = (x, y) => document.querySelector(`.stud[data-x="${x}"][data-y="${y}"]`);
+    for (const [x, y] of [[1, 1], [2, 1], [3, 1], [2, 2], [2, 3]]) stud(x, y).click();
+    const clasp = document.getElementById('clasp');
+    const t = setInterval(() => {
+      if (!clasp.classList.contains('wrong')) return;
+      clearInterval(t);
+      stud(3, 3).click();
+      resolve(stud(3, 3).getAttribute('aria-pressed'));
+    }, 10);
+  }));
+  assert.equal(during, 'false', 'a stud pressed while the plate shakes went down, to be thrown out with the rest');
+  await p.waitForFunction(() => !document.getElementById('clasp').classList.contains('wrong'));
+  assert.equal(await p.locator('.stud[aria-pressed="true"]').count(), 0, 'wrong studs let go');
+  await p.locator('.stud[data-x="3"][data-y="3"]').click();
+  assert.equal(await p.locator('.stud[data-x="3"][data-y="3"]').getAttribute('aria-pressed'), 'true', 'the plate takes presses again');
+  await p.close();
+}
+
 assert.deepEqual(problems.filter(p => !p.startsWith('failed:')), [], 'problems while playing');
 await browser.close();
 server.close();

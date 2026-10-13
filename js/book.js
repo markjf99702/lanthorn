@@ -76,7 +76,9 @@ export function createBook(els, { onOpen, onWake, onLink }) {
         } else {
           audio.thunk();
           clasp.classList.add('wrong');
-          setTimeout(() => {
+          // The plate stays locked until the studs have popped out, so a press now isn't thrown away with them.
+          checking = setTimeout(() => {
+            checking = 0;
             clasp.classList.remove('wrong');
             state.studs = []; save(); syncStuds();
             audio.stud(false);
