@@ -1,6 +1,7 @@
 // What you've done so far, kept in this browser. `keeper` is whatever the far light is signalling:
 // Nell's pattern to begin with, then the last player's, and it survives starting again.
 import { NELL_PATTERN } from './world.js';
+import { JOURNAL } from './text.js';
 
 const KEY = 'lanthorn:v1';
 
@@ -21,10 +22,24 @@ const FRESH = () => ({
 
 export const state = { ...FRESH(), keeper: NELL_PATTERN, sound: true };
 
+// A save that has been garbled, or filled in by hand: anything that's the wrong kind of thing goes back to how
+// it starts, and everything else is kept. A page past either end of the journal is the nearest end.
+export function tidy(s) {
+  const f = FRESH();
+  for (const k of ['caseOpen', 'claspOpen', 'awake', 'done', 'letterRead']) if (typeof s[k] !== 'boolean') s[k] = f[k];
+  s.page = Number.isFinite(s.page) ? Math.max(0, Math.min(JOURNAL.length - 1, Math.round(s.page))) : f.page;
+  const digit = n => Number.isInteger(n) && n >= 0 && n <= 9;
+  if (!(Array.isArray(s.digits) && s.digits.length === 3 && s.digits.every(digit))) s.digits = f.digits;
+  s.studs = Array.isArray(s.studs) ? s.studs.filter(p => Array.isArray(p) && p.length === 2 && p.every(Number.isInteger)) : f.studs;
+  for (const k of ['hours', 'heading', 'pitch']) if (!Number.isFinite(s[k])) s[k] = f[k];
+  return s;
+}
+
 try {
   const saved = JSON.parse(localStorage.getItem(KEY) || 'null');
   if (saved && typeof saved === 'object') Object.assign(state, saved);
 } catch { /* storage blocked or garbled: start fresh */ }
+tidy(state);
 if (!/^[SL]{1,8}$/.test(state.keeper)) state.keeper = NELL_PATTERN;
 
 export function save() {

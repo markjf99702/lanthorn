@@ -33,8 +33,8 @@ function watch(p) {
 const page = await ctx.newPage();
 watch(page);
 
-const state = () => page.evaluate(() => ({ ...window.__lanthorn.state }));
-const screen = () => page.evaluate(() => [...document.querySelectorAll('.screen')].find(s => !s.hidden)?.id);
+const state = (p = page) => p.evaluate(() => ({ ...window.__lanthorn.state }));
+const screen = (p = page) => p.evaluate(() => [...document.querySelectorAll('.screen')].find(s => !s.hidden)?.id);
 const noSideways = async where => assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${where} scrolls sideways on a phone`);
 const back = () => page.click('#back');
 
@@ -348,6 +348,28 @@ const focused = p => p.evaluate(() => {
   let at = await focused(p);
   for (let i = 0; i < 6 && !(at.id === 'panel' && at.ring); i++) { await p.keyboard.press('Tab'); at = await focused(p); }
   assert.equal(at.ring, INK, 'the focus ring round the picture hardly shows on the page');
+  await p.close();
+}
+
+// A garbled save still opens: whatever is the wrong kind of thing starts afresh, and the rest is kept.
+// The same goes for a test address with nonsense in it.
+{
+  const p = await open('?fresh');
+  await p.evaluate(() => localStorage.setItem('lanthorn:v1', JSON.stringify({ letterRead: true, digits: null, page: 99, studs: 7, hours: 'abc' })));
+  await p.goto(base);
+  await p.click('#begin');
+  for (const [thing, where] of [['#toCase', 'case'], ['#toJournal', 'journal'], ['#toGlass', 'glass']]) {
+    await p.click(thing);
+    assert.equal(await screen(p), where, `${thing} doesn't open with a garbled save`);
+    if (where === 'journal') assert.equal(await p.locator('#jNum').innerText(), '11 / 11', 'a page past the end opens the last one');
+    await p.click('#back');
+  }
+  assert.equal((await state(p)).letterRead, true, 'the rest of the save is kept');
+  await p.goto(base + '?fresh&at=journal&page=11');
+  assert.equal(await p.locator('#jNum').innerText(), '11 / 11');
+  await p.goto(base + '?at=glass&hours=x');
+  await p.waitForTimeout(300);
+  assert.ok(Number.isFinite((await state(p)).hours), 'a nonsense hour went into the save');
   await p.close();
 }
 

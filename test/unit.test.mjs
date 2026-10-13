@@ -4,6 +4,8 @@ import assert from 'node:assert/strict';
 import { lightOn, sunAt, environment, dither, LAMPBEARER, NELL_PATTERN, BEAT, FAR_BEARING } from '../js/world.js';
 import { isLampbearer } from '../js/book.js';
 import { paperPixels } from '../js/textures.js';
+import { tidy } from '../js/store.js';
+import { JOURNAL } from '../js/text.js';
 
 test('the sun rises in the east at six and sets in the west at six', () => {
   assert.equal(sunAt(6).az, 90);
@@ -84,4 +86,32 @@ test('the paper carries on across the join where its tiles meet', () => {
     const join = across(w - 1, at);
     assert.ok(join <= inside, `between ${name} the paper jumps ${join.toFixed(2)} at the join, and at most ${inside.toFixed(2)} anywhere else`);
   }
+});
+
+test('a garbled save keeps what still makes sense, and the rest starts afresh', () => {
+  const s = tidy({ caseOpen: 'yes', claspOpen: true, letterRead: 1, digits: null, page: 99, studs: 'none', hours: 'abc', heading: 359.6, pitch: null, keeper: 'SLS' });
+  assert.equal(s.caseOpen, false);
+  assert.equal(s.claspOpen, true);
+  assert.equal(s.letterRead, false);
+  assert.deepEqual(s.digits, [0, 0, 0]);
+  assert.equal(s.page, JOURNAL.length - 1, 'a page past the end is the last page');
+  assert.deepEqual(s.studs, []);
+  assert.equal(s.hours, 15.5);
+  assert.equal(s.heading, 359.6);
+  assert.equal(s.pitch, -1);
+  assert.equal(s.keeper, 'SLS');
+  assert.equal(tidy({ page: -1 }).page, 0);
+  assert.equal(tidy({ page: '3' }).page, 0);
+  assert.deepEqual(tidy({ digits: '245' }).digits, [0, 0, 0]);
+  assert.deepEqual(tidy({ digits: [2, 4, 12] }).digits, [0, 0, 0]);
+  assert.deepEqual(tidy({ studs: [[1, 0], 'x', [2, 2.5], [0, 1]] }).studs, [[1, 0], [0, 1]]);
+});
+
+test('a real save comes through tidying unchanged', () => {
+  // Someone who has finished, left the light saying short, long, short, and turned the sound off.
+  const finished = { caseOpen: true, claspOpen: true, awake: true, done: true, letterRead: true, page: 10, digits: [2, 4, 4], studs: [[2, 0], [1, 1], [2, 2], [3, 2], [3, 4]], hours: 23.99, heading: 359.6, pitch: 14, hintsSeen: 0, keeper: 'SLS', sound: false };
+  assert.deepEqual(tidy(structuredClone(finished)), finished);
+  // And someone who has only just started.
+  const begun = { caseOpen: false, claspOpen: false, awake: false, done: false, letterRead: false, page: 0, digits: [0, 0, 0], studs: [], hours: 15.5, heading: 128, pitch: -1, hintsSeen: 0, keeper: 'LSLL', sound: true };
+  assert.deepEqual(tidy(structuredClone(begun)), begun);
 });

@@ -1,5 +1,5 @@
 // Lanthorn: the desk, and moving between the things on it.
-import { state, save, reset } from './store.js';
+import { state, save, reset, tidy } from './store.js';
 import { FAR_BEARING } from './world.js';
 import { INTRO, JOURNAL, LETTER, LAST_PAGE, BOOK_LINE, ENDING, HINTS } from './text.js';
 import { SKETCHES } from './sketches.js';
@@ -333,7 +333,8 @@ if ('serviceWorker' in navigator && isSecureContext) navigator.serviceWorker.reg
 // For tests and screenshots: ?at=desk|glass|case|book|far|end jumps straight there.
 const q = new URLSearchParams(location.search);
 if (q.has('fresh')) reset();
-for (const k of ['hours', 'heading', 'pitch', 'page']) if (q.has(k)) state[k] = +q.get(k);
+for (const k of ['hours', 'heading', 'pitch', 'page']) if (q.has(k) && Number.isFinite(+q.get(k))) state[k] = +q.get(k);
+tidy(state);
 if (q.has('keeper') && /^[SL]{1,8}$/.test(q.get('keeper'))) state.keeper = q.get('keeper');
 const at = q.get('at');
 if (at === 'book' || at === 'far') Object.assign(state, { caseOpen: true, claspOpen: q.has('shut') ? false : true, awake: q.has('awake') });
