@@ -410,6 +410,27 @@ const focused = p => p.evaluate(() => {
   await p.close();
 }
 
+// While you read her last page the far rock stops drawing behind it, and starts again when you put it down.
+{
+  const p = await open('?fresh&at=far', pg => pg.addInitScript(() => {
+    window.__farDraws = 0;
+    const put = CanvasRenderingContext2D.prototype.putImageData;
+    CanvasRenderingContext2D.prototype.putImageData = function (...a) { if (this.canvas.id === 'farView') window.__farDraws++; return put.apply(this, a); };
+  }));
+  await p.evaluate(() => { document.getElementById('sillPage').hidden = false; });
+  await p.click('#sillPage');
+  assert.equal(await screen(p), 'letter');
+  const draws = () => p.evaluate(() => window.__farDraws);
+  const reading = await draws();
+  await p.waitForTimeout(1000);
+  assert.equal(await draws(), reading, 'the far rock kept drawing behind her page');
+  await p.click('#back');
+  assert.equal(await screen(p), 'far');
+  await p.waitForTimeout(500);
+  assert.ok(await draws() > reading, 'the far rock didn\'t start drawing again');
+  await p.close();
+}
+
 assert.deepEqual(problems.filter(p => !p.startsWith('failed:')), [], 'problems while playing');
 await browser.close();
 server.close();

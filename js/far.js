@@ -9,6 +9,7 @@ const TOWARDS_HOME = (Math.atan2(HOME.x - FAR.x, HOME.y - FAR.y) * 180 / Math.PI
 export function createFar(els, { onPage, onDone }) {
   const { canvas, warm, lever, page, text } = els;
   const ctx = canvas.getContext('2d');
+  const room = canvas.closest('.screen');
   let W = 200, H = 400, img = null;
   let running = false, raf = 0, lastDraw = 0;
   let beam = 0, open = false, openAt = 0;
@@ -33,6 +34,8 @@ export function createFar(els, { onPage, onDone }) {
   function frame(now) {
     if (!running) return;
     raf = requestAnimationFrame(frame);
+    // Keep going while her page is open, ready for when it's put down, but there's nothing to draw behind it.
+    if (room.hidden) return;
     const target = open ? 1 : 0;
     beam += (target - beam) * (open ? 0.5 : 0.35);
     if (now - lastDraw < 45) return;
