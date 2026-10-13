@@ -321,6 +321,22 @@ async function resizes(query, id, ms) {
   await p.close();
 }
 
+// While the hint sheet is up the keyboard stays on it, so nothing behind it can be opened, and closing it
+// gives focus back to Stuck?.
+{
+  const p = await open('?fresh&at=desk');
+  await p.click('#stuckBtn');
+  for (let i = 0; i < 6; i++) {
+    await p.keyboard.press('Tab');
+    const at = await p.evaluate(() => { const a = document.activeElement; return { id: a.id || a.tagName, inSheet: !!a.closest('#hints') }; });
+    assert.ok(at.inSheet || at.id === 'BODY', `Tab reached ${at.id} behind the hint sheet`);
+  }
+  await p.keyboard.press('Escape');
+  assert.equal(await p.locator('#hints').isHidden(), true);
+  assert.equal(await p.evaluate(() => document.activeElement.id), 'stuckBtn', 'closing the sheet gives focus back to Stuck?');
+  await p.close();
+}
+
 assert.deepEqual(problems.filter(p => !p.startsWith('failed:')), [], 'problems while playing');
 await browser.close();
 server.close();

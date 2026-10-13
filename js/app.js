@@ -279,11 +279,14 @@ function lockNow() {
   return null;
 }
 let hintShown = 1;
+// While the sheet is up, everything behind it is out of reach, so the keyboard can't wander off and open a screen under it.
+const behindHints = () => [...document.querySelectorAll('.screen'), $('back'), $('soundBtn')];
 function openHints() {
   const lock = lockNow();
   hintShown = 1;
   drawHints(lock);
   $('hints').hidden = false;
+  for (const el of behindHints()) el.inert = true;
   $('hintClose').focus();
 }
 function drawHints(lock) {
@@ -291,7 +294,11 @@ function drawHints(lock) {
   $('hintList').innerHTML = list.slice(0, hintShown).map(h => `<li>${esc(h)}</li>`).join('');
   $('hintMore').disabled = hintShown >= list.length;
 }
-function closeHints() { $('hints').hidden = true; $('stuckBtn').focus(); }
+function closeHints() {
+  for (const el of behindHints()) el.inert = false;
+  $('hints').hidden = true;
+  $('stuckBtn').focus();
+}
 $('stuckBtn').addEventListener('click', openHints);
 $('hintMore').addEventListener('click', () => { hintShown++; drawHints(lockNow()); });
 $('hintClose').addEventListener('click', closeHints);
