@@ -322,18 +322,32 @@ async function resizes(query, id, ms) {
 }
 
 // While the hint sheet is up the keyboard stays on it, so nothing behind it can be opened, and closing it
-// gives focus back to Stuck?.
+// gives focus back to Stuck?. On paper the focus ring is ink, because brass hardly shows there.
+const INK = 'rgb(51, 38, 26)';
+const focused = p => p.evaluate(() => {
+  const a = document.activeElement;
+  return { id: a.id || a.tagName, inSheet: !!a.closest('#hints'), ring: a.matches(':focus-visible') ? getComputedStyle(a).outlineColor : null };
+});
 {
   const p = await open('?fresh&at=desk');
   await p.click('#stuckBtn');
   for (let i = 0; i < 6; i++) {
     await p.keyboard.press('Tab');
-    const at = await p.evaluate(() => { const a = document.activeElement; return { id: a.id || a.tagName, inSheet: !!a.closest('#hints') }; });
+    const at = await focused(p);
     assert.ok(at.inSheet || at.id === 'BODY', `Tab reached ${at.id} behind the hint sheet`);
+    if (at.inSheet) assert.equal(at.ring, INK, `the focus ring on ${at.id} hardly shows on the paper`);
   }
   await p.keyboard.press('Escape');
   assert.equal(await p.locator('#hints').isHidden(), true);
   assert.equal(await p.evaluate(() => document.activeElement.id), 'stuckBtn', 'closing the sheet gives focus back to Stuck?');
+  await p.close();
+}
+// The picture in the open book sits on the page too.
+{
+  const p = await open('?fresh&at=book');
+  let at = await focused(p);
+  for (let i = 0; i < 6 && !(at.id === 'panel' && at.ring); i++) { await p.keyboard.press('Tab'); at = await focused(p); }
+  assert.equal(at.ring, INK, 'the focus ring round the picture hardly shows on the page');
   await p.close();
 }
 

@@ -57,6 +57,8 @@ canvas, .lever, .stud, .wheel .win, .hourwheel { -webkit-touch-callout: none; }
 .btn:focus-visible, .thing:focus-visible, .arrow:focus-visible, .back:focus-visible, .sound:focus-visible, canvas:focus-visible, .stud:focus-visible, .wheel button:focus-visible, .lever:focus-visible, .hourwheel:focus-visible, .stuck:focus-visible, .book-thing:focus-visible, .letter-thing:focus-visible, .sill-page:focus-visible {
   outline: 2px solid var(--brass-1); outline-offset: 4px;
 }
+/* Brass hardly shows on paper, so the ring is ink on the hint sheet and the open book. */
+.paper :focus-visible { outline-color: var(--ink); }
 .small { color: var(--dim); font-size: .85rem; font-style: italic; }
 .hint { color: var(--dim); font-style: italic; font-size: .92rem; text-align: center; margin: .8rem 0 0; min-height: 1.4em; transition: opacity .6s; }
 
