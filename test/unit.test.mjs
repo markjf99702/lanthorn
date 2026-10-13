@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { lightOn, sunAt, environment, dither, LAMPBEARER, NELL_PATTERN, BEAT, FAR_BEARING } from '../js/world.js';
-import { isLampbearer } from '../js/book.js';
+import { isLampbearer, SHORT_MAX } from '../js/book.js';
 import { paperPixels } from '../js/textures.js';
 import { tidy } from '../js/store.js';
 import { JOURNAL } from '../js/text.js';
@@ -44,6 +44,28 @@ test('the light flashes the pattern, long and short, then rests', () => {
     if (flashes.length === NELL_PATTERN.length) break;
   }
   assert.deepEqual(flashes.map(d => (d > (BEAT.S + BEAT.L) / 2 ? 'L' : 'S')).join(''), NELL_PATTERN);
+});
+
+test('answering the light by copying it works: a press as long as a flash reads as that flash', () => {
+  // Measure every flash in a few repeats (a repeat starts with a flash at 0), then press for as long as each one
+  // lasted, a quarter shorter and a quarter longer, the way someone copying what they saw would.
+  for (const pattern of ['LSLL', 'SSSS', 'LLLL', 'SLS']) {
+    const seen = [];
+    let on = false, start = 0;
+    for (let t = 0; t < 30; t += 0.001) {
+      const now = lightOn(pattern, t);
+      if (now && !on) start = t;
+      if (!now && on) seen.push(t - start);
+      on = now;
+    }
+    assert.ok(seen.length >= pattern.length * 2, `only ${seen.length} flashes of ${pattern}`);
+    seen.forEach((d, i) => {
+      const flash = pattern[i % pattern.length];
+      for (const k of [0.75, 1, 1.25]) {
+        assert.equal(d * k < SHORT_MAX ? 'S' : 'L', flash, `a ${(d * k).toFixed(2)} s press copying ${pattern}'s ${d.toFixed(2)} s flash reads wrong`);
+      }
+    });
+  }
 });
 
 test('the clasp opens for the Lampbearer anywhere on the plate, and nothing else', () => {

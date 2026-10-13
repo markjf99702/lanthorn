@@ -302,7 +302,9 @@ export const PLACES = [
 // ---------- the light on the far rock ----------
 
 export const NELL_PATTERN = 'LSLL';
-export const BEAT = { S: 0.38, L: 1.15, gap: 0.55, rest: 2.8 };
+// Seconds. The short flash is well under the picture's short press (SHORT_MAX in book.js), so a press held as long
+// as the flash looked still counts as short.
+export const BEAT = { S: 0.24, L: 1.15, gap: 0.55, rest: 2.8 };
 
 // Is the far light showing at `sec` seconds, for a pattern like "LSLL"?
 export function lightOn(pattern, sec) {
