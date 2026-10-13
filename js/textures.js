@@ -41,17 +41,33 @@ export const walnut = () => make('walnut', 512, 384, (d, w, h) => {
   wood(d, w, h, [118, 74, 44], 11, 1.6);
 });
 
-export const paper = () => make('paper', 512, 512, (d, w, h) => {
+// Old paper: a blotchy tone, fine fibres and brown foxing. The page lays it down in 512 px tiles.
+export function paperPixels(d, w, h) {
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
     const a = (x / w) * Math.PI * 2, b = (y / h) * Math.PI * 2;
     const blot = fbm(Math.cos(a) * 2 + Math.sin(b) * 0.3, Math.sin(a) * 2 + Math.cos(b) * 2.2, 4);
     const fib = noise2(x * 0.7, y * 0.7) * 0.6 + noise2(x * 2.1, y * 2.3) * 0.4;
-    const fox = Math.max(0, fbm(x * 0.03 + 40, y * 0.03, 3) - 0.66) * 3;
+    const fox = Math.max(0, foxing(x, y, w, h) - 0.66) * 3;
     const v = 1 - (blot - 0.5) * 0.12 - (fib - 0.5) * 0.06;
     const i = (y * w + x) * 4;
     d[i] = (233 - fox * 30) * v; d[i + 1] = (222 - fox * 44) * v; d[i + 2] = (196 - fox * 60) * v; d[i + 3] = 255;
   }
-});
+}
+export const paper = () => make('paper', 512, 512, paperPixels);
+
+// The foxing comes from noise that doesn't repeat every 512 px. Near the right and bottom edges of the tile it fades
+// into the noise from the next tile over, so the spots carry on across the join instead of stopping along a line.
+const FADE = 64;
+const foxNoise = (x, y) => fbm(x * 0.03 + 40, y * 0.03, 3);
+function foxing(x, y, w, h) {
+  const ease = t => t * t * (3 - 2 * t);
+  const tx = ease(Math.max(0, x - (w - FADE)) / FADE), ty = ease(Math.max(0, y - (h - FADE)) / FADE);
+  if (!tx && !ty) return foxNoise(x, y);
+  const n = (1 - tx) * (1 - ty) * foxNoise(x, y) + tx * (1 - ty) * foxNoise(x - w, y)
+    + (1 - tx) * ty * foxNoise(x, y - h) + tx * ty * foxNoise(x - w, y - h);
+  // Mixing two patches of noise evens it out, which would thin the spots along the join, so stretch it back.
+  return 0.5 + (n - 0.5) / Math.sqrt(((1 - tx) ** 2 + tx ** 2) * ((1 - ty) ** 2 + ty ** 2));
+}
 
 export const leather = (key, tone) => make('leather-' + key, 384, 384, (d, w, h) => {
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {

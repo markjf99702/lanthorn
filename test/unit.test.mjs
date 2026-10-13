@@ -3,6 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { lightOn, sunAt, environment, dither, LAMPBEARER, NELL_PATTERN, BEAT, FAR_BEARING } from '../js/world.js';
 import { isLampbearer } from '../js/book.js';
+import { paperPixels } from '../js/textures.js';
 
 test('the sun rises in the east at six and sets in the west at six', () => {
   assert.equal(sunAt(6).az, 90);
@@ -61,4 +62,26 @@ test('dithering keeps black black and white white, and stays close', () => {
   dither(d, 4, 1, 20);
   assert.deepEqual([...d.slice(0, 8)], [0, 0, 0, 255, 255, 255, 255, 255]);
   for (const [a, b] of [[d[8], 100], [d[9], 150], [d[10], 30], [d[12], 12], [d[13], 14]]) assert.ok(Math.abs(a - b) < 16, `${a} vs ${b}`);
+});
+
+test('the paper carries on across the join where its tiles meet', () => {
+  const w = 512, h = 512, d = new Uint8ClampedArray(w * h * 4);
+  paperPixels(d, w, h);
+  const lum = (x, y) => { const i = (((y + h) % h) * w + (x + w) % w) * 4; return 0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2]; };
+  // How much the paper changes across the line after row (or column) k, averaged over four pixels either side
+  // so the fine fibres don't count. The line after the last one is the join with the next tile.
+  const across = (k, at) => {
+    let sum = 0;
+    for (let j = 0; j < w; j++) {
+      let a = 0, b = 0;
+      for (let s = 0; s < 4; s++) { a += at(j, k - s); b += at(j, k + 1 + s); }
+      sum += Math.abs(a - b) / 4;
+    }
+    return sum / w;
+  };
+  for (const [name, at] of [['rows', (j, k) => lum(j, k)], ['columns', (j, k) => lum(k, j)]]) {
+    const inside = Math.max(...Array.from({ length: w - 10 }, (_, k) => across(k + 4, at)));
+    const join = across(w - 1, at);
+    assert.ok(join <= inside, `between ${name} the paper jumps ${join.toFixed(2)} at the join, and at most ${inside.toFixed(2)} anywhere else`);
+  }
 });
