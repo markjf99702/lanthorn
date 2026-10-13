@@ -6,6 +6,7 @@ import { isLampbearer, SHORT_MAX } from '../js/book.js';
 import { paperPixels } from '../js/textures.js';
 import { tidy } from '../js/store.js';
 import { JOURNAL } from '../js/text.js';
+import { nearMisses, marks } from '../js/sketches.js';
 
 test('the sun rises in the east at six and sets in the west at six', () => {
   assert.equal(sunAt(6).az, 90);
@@ -65,6 +66,30 @@ test('answering the light by copying it works: a press as long as a flash reads 
         assert.equal(d * k < SHORT_MAX ? 'S' : 'L', flash, `a ${(d * k).toFixed(2)} s press copying ${pattern}'s ${d.toFixed(2)} s flash reads wrong`);
       }
     });
+  }
+});
+
+test('Nell’s page about the light agrees with whatever light is being kept', () => {
+  const page = JOURNAL.find(p => p.sketch === 'marks');
+  const says = keeper => page.lines.map(l => (typeof l === 'function' ? l(keeper) : l)).join(' ');
+  // Her own light, as she wrote it.
+  assert.match(says('LSLL'), /four flashes and a rest/);
+  assert.deepEqual(nearMisses('LSLL'), ['LSSL', 'LLSL']);
+  // Any light someone could leave after finishing, one to eight flashes: she counts it right, and her two
+  // crossed-out tries are never the light itself, never the same as each other, and fit across the page.
+  const COUNTS = ['one flash', 'two flashes', 'three flashes', 'four flashes', 'five flashes', 'six flashes', 'seven flashes', 'eight flashes'];
+  for (let n = 1; n <= 8; n++) for (let m = 0; m < 1 << n; m++) {
+    const light = [...Array(n)].map((_, i) => (m >> i & 1 ? 'L' : 'S')).join('');
+    assert.ok(says(light).includes(`: ${COUNTS[n - 1]} and a rest`), `for ${light} she wrote: ${says(light)}`);
+    const [a, b] = nearMisses(light);
+    assert.ok(/^[SL]+$/.test(a + b) && a !== light && b !== light && a !== b, `for ${light} she crossed out ${a} and ${b}`);
+    const svg = marks(light);
+    const ends = [
+      ...[...svg.matchAll(/d="M([\d.]+) [\d.]+h([\d.]+)"/g)].map(([, x, w]) => +x + +w),
+      ...[...svg.matchAll(/cx="([\d.]+)" cy="[\d.]+" r="([\d.]+)"/g)].map(([, x, r]) => +x + +r),
+      ...[...svg.matchAll(/L([\d.]+) /g)].map(([, x]) => +x),
+    ];
+    assert.ok(Math.max(...ends) <= 300, `the crossed-out tries for ${light} run off the page, to ${Math.max(...ends)}`);
   }
 });
 

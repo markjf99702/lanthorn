@@ -225,6 +225,16 @@ assert.equal(await page.locator('#hintList li').count(), 2);
 await page.click('#hintClose');
 assert.equal(await page.locator('#hints').isHidden(), true);
 
+// Nell's page about the light counts your light's flashes now, and her two crossed-out tries aren't it.
+await page.click('#toJournal');
+for (let i = 0; i < 6; i++) await page.keyboard.press('ArrowRight');
+assert.match(await page.locator('#jPage').innerText(), /three flashes and a rest/);
+const tries = await page.evaluate(() => [26, 68].map(y => [...document.querySelectorAll('#jPage svg.sketch g > *')]
+  .map(el => (el.tagName === 'circle' ? [+el.getAttribute('cx'), +el.getAttribute('cy'), 'S'] : [...(/^M([\d.]+) ([\d.]+)h/.exec(el.getAttribute('d')) || []).slice(1).map(Number), 'L']))
+  .filter(([, at]) => at === y).sort((a, b) => a[0] - b[0]).map(m => m[2]).join('')));
+assert.deepEqual(tries, ['SLL', 'LLS'], 'her crossed-out tries for a light that says short, long, short');
+await back();
+
 // Works offline once it has been opened.
 await page.waitForFunction(() => navigator.serviceWorker?.controller, null, { timeout: 10000 }).catch(() => {});
 await ctx.setOffline(true);

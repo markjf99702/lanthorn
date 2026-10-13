@@ -5,7 +5,13 @@ export const INTRO = [
   'Nobody came back for them.',
 ];
 
-// The journal: one entry to a page. `sketch` names a drawing from sketches.js.
+// How many flashes the far light makes before it rests. It says whatever its last keeper left it saying, so after
+// someone has finished and started again, Nell's count follows their light.
+const NUMBERS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'];
+const flashes = keeper => (keeper.length === 1 ? 'one flash' : `${NUMBERS[keeper.length]} flashes`);
+
+// The journal: one entry to a page. `sketch` names a drawing from sketches.js. A line can be a function of the
+// light the far rock is keeping.
 export const JOURNAL = [
   { cover: true, lines: ['N. Harrow'], note: 'If found, please don’t open the case.' },
   {
@@ -47,7 +53,7 @@ export const JOURNAL = [
   {
     date: '23 October',
     lines: [
-      'There’s a light in the tower. It comes on after dark: four flashes and a rest, over and over, all night.',
+      keeper => `There’s a light in the tower. It comes on after dark: ${flashes(keeper)} and a rest, over and over, all night.`,
       'I keep trying to write it down and getting it wrong. Somebody is keeping it.',
     ],
     sketch: 'marks',
@@ -129,7 +135,7 @@ export const HINTS = {
   ],
   panel: [
     'The dark picture wakes for someone who can answer the far light. Watch it through the eyeglass after dark.',
-    'The light flashes long and short, then rests. Tap the picture for a short flash and hold it for a long one.',
+    'The light flashes, long or short, then rests. Tap the picture for a short flash and hold it for a long one.',
     'Answer it in the same order, all in one go, then wait a moment.',
   ],
 };

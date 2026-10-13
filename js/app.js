@@ -81,7 +81,8 @@ function drawJournal(turned = false) {
   if (p.cover) {
     el.innerHTML = `<p class="name">${esc(p.lines[0])}</p><p class="note">${esc(p.note)}</p>`;
   } else {
-    el.innerHTML = `<p class="date">${esc(p.date)}</p><div class="entry">${p.lines.map(l => `<p>${esc(l)}</p>`).join('')}</div>${p.sketch ? SKETCHES[p.sketch]() : ''}`;
+    const line = l => (typeof l === 'function' ? l(state.keeper) : l);
+    el.innerHTML = `<p class="date">${esc(p.date)}</p><div class="entry">${p.lines.map(l => `<p>${esc(line(l))}</p>`).join('')}</div>${p.sketch ? SKETCHES[p.sketch](state.keeper) : ''}`;
   }
   el.scrollTop = 0;
   if (turned) { el.classList.remove('page-turn'); void el.offsetWidth; el.classList.add('page-turn'); }

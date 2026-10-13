@@ -33,20 +33,41 @@ export function map() {
 </svg>`;
 }
 
+// Her two wrong goes at writing down the light, whatever it says now: near misses that are never the light itself.
+// For Nell's own light, LSLL, they're LSSL and LLSL.
+const flip = c => (c === 'L' ? 'S' : 'L');
+export function nearMisses(keeper) {
+  const a = [...keeper], b = [...keeper], n = a.length;
+  if (n >= 4) {
+    // One wrong near the end, and the second and third the wrong way round (or the second wrong, if they match).
+    a[n - 2] = flip(a[n - 2]);
+    if (b[1] !== b[2]) [b[1], b[2]] = [b[2], b[1]]; else b[1] = flip(b[1]);
+  } else {
+    // Too short for that: the last one wrong, and the first one wrong (or, after a single flash, one too many).
+    a[n - 1] = flip(a[n - 1]);
+    if (n === 1) b.push(flip(b[0])); else b[0] = flip(b[0]);
+  }
+  return [a.join(''), b.join('')];
+}
+
 // Two goes at writing the light down, both crossed out.
-export function marks() {
+export function marks(keeper) {
   const row = (y, seq, strike) => {
+    // A long light is written closer together, so it still fits across the page.
+    const k = Math.min(1, 236 / [...seq].reduce((w, c) => w + (c === 'L' ? 48 : 28), 0));
+    const at = v => Math.round(v * 10) / 10;
     let x = 44, out = '';
     for (const c of seq) {
-      if (c === 'L') { out += `<path d="M${x} ${y}h30" />`; x += 48; } else { out += `<circle cx="${x + 5}" cy="${y}" r="4.2" fill="currentColor" stroke="none"/>`; x += 28; }
+      if (c === 'L') { out += `<path d="M${at(x)} ${y}h${at(30 * k)}" />`; x += 48 * k; } else { out += `<circle cx="${at(x + 5)}" cy="${y}" r="4.2" fill="currentColor" stroke="none"/>`; x += 28 * k; }
     }
-    if (strike) out += `<path d="M30 ${y + 13}L${x + 2} ${y - 13}" stroke-width="1.5"/>`;
+    if (strike) out += `<path d="M30 ${y + 13}L${at(x + 2)} ${y - 13}" stroke-width="1.5"/>`;
     return out;
   };
+  const [first, second] = nearMisses(keeper);
   return `<svg viewBox="0 0 300 118" class="sketch" role="img" aria-label="Two attempts at writing down the light, long and short marks, both crossed out, and a question mark.">
   <g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round">
-    ${row(26, 'LSSL', true)}
-    ${row(68, 'LLSL', true)}
+    ${row(26, first, true)}
+    ${row(68, second, true)}
   </g>
   ${hand(40, 108, 26, '?')}
   ${hand(170, 106, 15, 'wrong again')}
