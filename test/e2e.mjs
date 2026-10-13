@@ -292,6 +292,35 @@ async function resizes(query, id, ms) {
   assert.equal(far.wiped, 0, 'the far rock went black when it drew fewer pixels');
 }
 
+// On a phone the pages you read start below the back and sound buttons, not under them, and still fit.
+{
+  const p = await open('?fresh&at=journal&page=5');
+  async function clear(sel, where) {
+    for (const viewport of [{ width: 390, height: 844 }, { width: 375, height: 667 }, { width: 360, height: 640 }]) {
+      await p.setViewportSize(viewport);
+      const [el, back, sound] = await Promise.all([sel, '#back', '#soundBtn'].map(s => p.locator(s).boundingBox()));
+      const size = `${viewport.width}x${viewport.height}`;
+      assert.ok(el.y >= Math.max(back.y + back.height, sound.y + sound.height), `${where} starts under the buttons at ${size}`);
+      assert.ok(el.y + el.height <= viewport.height, `${where} runs off the bottom at ${size}`);
+    }
+    await p.setViewportSize({ width: 390, height: 844 });
+  }
+  await clear('#jPage', 'the journal');
+  await clear('.pager', 'the page numbers');
+  // The letter in the case.
+  await p.goto(base + '?fresh&at=book');
+  await p.evaluate(() => window.__lanthorn.show('desk'));
+  await p.click('#toCase');
+  await p.click('#toLetter');
+  await clear('#letterPage', 'the letter');
+  // Nell's last page, on the far rock.
+  await p.goto(base + '?fresh&at=far');
+  await p.evaluate(() => { document.getElementById('sillPage').hidden = false; });
+  await p.click('#sillPage');
+  await clear('#letterPage', 'her last page');
+  await p.close();
+}
+
 assert.deepEqual(problems.filter(p => !p.startsWith('failed:')), [], 'problems while playing');
 await browser.close();
 server.close();

@@ -160,6 +160,10 @@ canvas, .lever, .stud, .wheel .win, .hourwheel { -webkit-touch-callout: none; }
 .letter { height: auto; max-height: calc(100% - 2rem); background-image: linear-gradient(180deg, transparent 49.6%, rgba(90, 60, 25, .18) 50%, transparent 50.6%), linear-gradient(90deg, rgba(90, 60, 25, .1), transparent 8%, transparent 92%, rgba(90, 60, 25, .1)), var(--paper-img, none); }
 .letter p { font-family: var(--hand); font-size: clamp(1.15rem, 4.8vw, 1.38rem); line-height: 1.55; margin: 0 0 .9rem; }
 .letter .sign { text-align: right; font-size: 1.6rem; margin: 1rem 1rem 0 0; }
+/* Where the page is as wide as the screen, start it below the back and sound buttons rather than under them. */
+@media (max-width: 640px) {
+  .reader { padding-top: max(62px, calc(env(safe-area-inset-top) + 52px)); }
+}
 
 /* ---------- the eyeglass ---------- */
 .glass { background: radial-gradient(ellipse at 50% 45%, #14110d, #030303 75%); touch-action: none; }
