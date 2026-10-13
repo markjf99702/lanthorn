@@ -377,6 +377,9 @@ const focused = p => p.evaluate(() => {
 // them, and once they're out it takes presses again.
 {
   const p = await open('?fresh&at=book&shut');
+  // A screen reader hears how many studs there are: five by five, less the corners.
+  assert.equal(await p.locator('.stud').count(), 21);
+  assert.match(await p.locator('#clasp').getAttribute('aria-label'), /twenty-one studs/, 'the plate tells a screen reader the wrong number of studs');
   const during = await p.evaluate(() => new Promise(resolve => {
     const stud = (x, y) => document.querySelector(`.stud[data-x="${x}"][data-y="${y}"]`);
     for (const [x, y] of [[1, 1], [2, 1], [3, 1], [2, 2], [2, 3]]) stud(x, y).click();
