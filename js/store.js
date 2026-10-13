@@ -1,6 +1,6 @@
 // What you've done so far, kept in this browser. `keeper` is whatever the far light is signalling:
 // Nell's pattern to begin with, then the last player's, and it survives starting again.
-import { NELL_PATTERN } from './world.js';
+import { NELL_PATTERN, LAMPBEARER, caseCatches, isLampbearer } from './world.js';
 import { JOURNAL } from './text.js';
 
 const KEY = 'lanthorn:v1';
@@ -35,11 +35,22 @@ export function tidy(s) {
   return s;
 }
 
+// A lock makes up its mind a moment before it has finished moving, and only says so in the save at the end, so a
+// page closed in between came back with the right answer on a shut lock, or five wrong studs that never popped
+// out. This finishes what each lock had decided. It needs a tidy save.
+export function settle(s) {
+  if (!s.caseOpen && caseCatches(s.digits)) s.caseOpen = true;
+  if (s.caseOpen && !s.claspOpen && isLampbearer(s.studs)) s.claspOpen = true;
+  if (!s.claspOpen && s.studs.length >= LAMPBEARER.length) s.studs = [];
+  return s;
+}
+
 try {
   const saved = JSON.parse(localStorage.getItem(KEY) || 'null');
   if (saved && typeof saved === 'object') Object.assign(state, saved);
 } catch { /* storage blocked or garbled: start fresh */ }
 tidy(state);
+settle(state);
 if (!/^[SL]{1,8}$/.test(state.keeper)) state.keeper = NELL_PATTERN;
 
 export function save() {

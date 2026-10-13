@@ -444,6 +444,45 @@ const focused = p => p.evaluate(() => {
   await p.close();
 }
 
+// A reload while a lock is opening: it's open when the page comes back, and five wrong studs have popped out.
+// The page's timers are stopped just before the deciding press, so it can't finish opening before it goes.
+{
+  const p = await open('?fresh');
+  await p.goto(base);
+  const pressThenReload = sel => Promise.all([p.waitForEvent('load'), p.evaluate(sel => {
+    const later = window.setTimeout;
+    window.setTimeout = () => 0;
+    document.querySelector(sel).click();
+    later(() => location.reload(), 0);
+  }, sel)]);
+  const walk = async (...things) => { await p.click('#begin'); for (const t of things) await p.click(t); };
+  // The case, as the last wheel comes round to 243.
+  const up = i => `#wheels .wheel:nth-child(${i + 1}) button:first-child`;
+  await walk('#toCase');
+  for (const [i, n] of [[0, 2], [1, 4], [2, 2]]) for (let k = 0; k < n; k++) await p.click(up(i));
+  await pressThenReload(up(2));
+  assert.equal(await p.locator('#begin').innerText(), 'Back to the desk', 'the intro doesn\'t know the case is open');
+  await walk('#toCase');
+  await p.waitForSelector('#caseOpen', { state: 'visible' });
+  // Five wrong studs.
+  const stud = ([x, y]) => `.stud[data-x="${x}"][data-y="${y}"]`;
+  const wrong = [[1, 1], [2, 1], [3, 1], [2, 2], [2, 3]];
+  await p.click('#toBook');
+  for (const s of wrong.slice(0, 4)) await p.click(stud(s));
+  await pressThenReload(stud(wrong[4]));
+  assert.deepEqual((await state(p)).studs, [], 'five wrong studs were still down after a reload');
+  await walk('#toCase', '#toBook');
+  assert.equal(await p.locator('.stud[aria-pressed="true"]').count(), 0);
+  // The Lampbearer.
+  const lamp = [[1, 0], [0, 1], [1, 2], [2, 2], [2, 4]];
+  for (const s of lamp.slice(0, 4)) await p.click(stud(s));
+  await pressThenReload(stud(lamp[4]));
+  assert.equal((await state(p)).claspOpen, true, 'the Lampbearer was down, but the clasp was shut after a reload');
+  await walk('#toCase', '#toBook');
+  await p.waitForSelector('#opened', { state: 'visible' });
+  await p.close();
+}
+
 // The N on the compass rose of the case's lock shows whole, above the ring.
 {
   const p = await open('?fresh&at=case');

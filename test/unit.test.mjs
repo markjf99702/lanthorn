@@ -1,10 +1,10 @@
 // The rules, checked in Node:  node --test test/unit.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { lightOn, sunAt, environment, dither, LAMPBEARER, NELL_PATTERN, BEAT, FAR_BEARING } from '../js/world.js';
-import { isLampbearer, SHORT_MAX } from '../js/book.js';
+import { lightOn, sunAt, environment, dither, LAMPBEARER, NELL_PATTERN, BEAT, FAR_BEARING, isLampbearer } from '../js/world.js';
+import { SHORT_MAX } from '../js/book.js';
 import { paperPixels } from '../js/textures.js';
-import { tidy } from '../js/store.js';
+import { tidy, settle } from '../js/store.js';
 import { JOURNAL } from '../js/text.js';
 import { nearMisses, marks } from '../js/sketches.js';
 
@@ -158,7 +158,28 @@ test('a real save comes through tidying unchanged', () => {
   // Someone who has finished, left the light saying short, long, short, and turned the sound off.
   const finished = { caseOpen: true, claspOpen: true, awake: true, done: true, letterRead: true, page: 10, digits: [2, 4, 4], studs: [[2, 0], [1, 1], [2, 2], [3, 2], [3, 4]], hours: 23.99, heading: 359.6, pitch: 14, hintsSeen: 0, keeper: 'SLS', sound: false };
   assert.deepEqual(tidy(structuredClone(finished)), finished);
+  assert.deepEqual(settle(tidy(structuredClone(finished))), finished);
   // And someone who has only just started.
   const begun = { caseOpen: false, claspOpen: false, awake: false, done: false, letterRead: false, page: 0, digits: [0, 0, 0], studs: [], hours: 15.5, heading: 128, pitch: -1, hintsSeen: 0, keeper: 'LSLL', sound: true };
   assert.deepEqual(tidy(structuredClone(begun)), begun);
+  assert.deepEqual(settle(tidy(structuredClone(begun))), begun);
+});
+
+test('a lock caught opening when the page closed is open when it comes back', () => {
+  // The case: the wheels within two of the bearing, saved before the lid had swung.
+  assert.equal(settle(tidy({ digits: [2, 4, 3] })).caseOpen, true);
+  assert.equal(settle(tidy({ digits: [2, 4, 7] })).caseOpen, true);
+  assert.equal(settle(tidy({ digits: [2, 4, 8] })).caseOpen, false, 'three away from the bearing is still shut');
+  assert.equal(settle(tidy({ digits: [2, 4, 0] })).caseOpen, false);
+  // The clasp: the Lampbearer's five studs down, saved before the plate had looked at them.
+  const lamp = LAMPBEARER.map(([x, y]) => [x + 1, y]);
+  const opened = settle(tidy({ caseOpen: true, studs: structuredClone(lamp) }));
+  assert.equal(opened.claspOpen, true);
+  assert.deepEqual(opened.studs, lamp);
+  // Five wrong studs, saved before they popped out: out they come.
+  const wrong = settle(tidy({ caseOpen: true, studs: [[1, 1], [2, 1], [3, 1], [2, 2], [2, 3]] }));
+  assert.equal(wrong.claspOpen, false);
+  assert.deepEqual(wrong.studs, []);
+  // Four studs down is someone partway through: they stay down.
+  assert.deepEqual(settle(tidy({ caseOpen: true, studs: lamp.slice(0, 4) })).studs, lamp.slice(0, 4));
 });

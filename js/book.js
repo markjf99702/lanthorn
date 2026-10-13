@@ -1,5 +1,5 @@
 // The second book: a clasp of brass studs on the cover, then a dark picture that wakes for anyone who can answer the light.
-import { render, environment, dither, FAR, LAMPBEARER } from './world.js';
+import { render, environment, dither, FAR, LAMPBEARER, isLampbearer } from './world.js';
 import { state, save } from './store.js';
 import * as audio from './audio.js';
 
@@ -9,16 +9,6 @@ const CELLS = [];
 for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
   const corner = (x === 0 || x === SIZE - 1) && (y === 0 || y === SIZE - 1);
   if (!corner) CELLS.push([x, y]);
-}
-
-// True if the pressed studs make the Lampbearer's shape, anywhere on the plate.
-export function isLampbearer(pressed) {
-  if (pressed.length !== LAMPBEARER.length) return false;
-  const set = new Set(pressed.map(([x, y]) => x + ',' + y));
-  for (let dx = -SIZE; dx <= SIZE; dx++) for (let dy = -SIZE; dy <= SIZE; dy++) {
-    if (LAMPBEARER.every(([x, y]) => set.has((x + dx) + ',' + (y + dy)))) return true;
-  }
-  return false;
 }
 
 export const SHORT_MAX = 0.36; // seconds: a press shorter than this is a short flash

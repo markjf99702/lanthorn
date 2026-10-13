@@ -6,6 +6,8 @@ const D2R = Math.PI / 180;
 const R2D = 180 / Math.PI;
 
 export const FAR_BEARING = 245;
+// The case's lock catches when its three wheels are within two of the bearing, so a reading taken by eye still opens it.
+export const caseCatches = digits => Math.abs(digits[0] * 100 + digits[1] * 10 + digits[2] - FAR_BEARING) <= 2;
 const FAR_DIST = 300;
 
 const polar = (bearing, dist) => ({ x: Math.sin(bearing * D2R) * dist, y: Math.cos(bearing * D2R) * dist });
@@ -123,6 +125,16 @@ function cloudAt(az, alt) {
 export const LAMPBEARER = [[1, 0], [0, 1], [1, 2], [2, 2], [2, 4]];
 const GRID = 2.1;
 const LB_ORIGIN = { az: FAR_BEARING - GRID, alt: 5.4 };
+
+// True if the pressed studs make the Lampbearer's shape, anywhere on the book's plate of five by five.
+export function isLampbearer(pressed) {
+  if (pressed.length !== LAMPBEARER.length) return false;
+  const set = new Set(pressed.map(([x, y]) => x + ',' + y));
+  for (let dx = -5; dx <= 5; dx++) for (let dy = -5; dy <= 5; dy++) {
+    if (LAMPBEARER.every(([x, y]) => set.has((x + dx) + ',' + (y + dy)))) return true;
+  }
+  return false;
+}
 
 const STARS = [];
 {

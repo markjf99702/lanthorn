@@ -1,6 +1,6 @@
 // Lanthorn: the desk, and moving between the things on it.
 import { state, save, reset, tidy } from './store.js';
-import { FAR_BEARING } from './world.js';
+import { FAR_BEARING, caseCatches } from './world.js';
 import { INTRO, JOURNAL, LETTER, LAST_PAGE, BOOK_LINE, ENDING, HINTS } from './text.js';
 import { SKETCHES } from './sketches.js';
 import { applyTextures } from './textures.js';
@@ -177,8 +177,7 @@ function spin(i, by, silentDir = false) {
   save();
   audio.click();
   drawWheel(i, silentDir ? 0 : by > 0 ? 1 : -1);
-  const value = state.digits[0] * 100 + state.digits[1] * 10 + state.digits[2];
-  if (Math.abs(value - FAR_BEARING) <= 2) {
+  if (caseCatches(state.digits)) {
     unlocking = true;
     setTimeout(() => {
       audio.unlock();
