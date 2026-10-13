@@ -350,4 +350,7 @@ canvas, .lever, .stud, .wheel .win, .hourwheel { -webkit-touch-callout: none; }
 @media (prefers-reduced-motion: reduce) {
   .screen, .page-turn, .intro-text p, .intro .btn, .intro .small { animation-duration: .01s !important; animation-delay: 0s !important; }
   .lamp { animation: none; }
+  /* The lid and the clasp fade away instead of swinging open. They take just as long, so the case and the book open on time. */
+  @keyframes lidopen { to { opacity: 0; } }
+  @keyframes claspopen { to { opacity: 0; } }
 }

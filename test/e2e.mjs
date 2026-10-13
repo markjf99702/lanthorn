@@ -431,6 +431,29 @@ const focused = p => p.evaluate(() => {
   await p.close();
 }
 
+// With reduced motion the case's lid and the book's clasp fade away instead of swinging open, in the same
+// time; without it they still swing.
+{
+  async function midway(query, sel, cls, reducedMotion) {
+    const p = await open(query, pg => pg.emulateMedia({ reducedMotion }));
+    const r = await p.evaluate(async ([sel, cls]) => {
+      const el = document.querySelector(sel);
+      el.classList.add(cls);
+      await new Promise(done => setTimeout(done, 400));
+      const cs = getComputedStyle(el);
+      return { transform: cs.transform, opacity: +cs.opacity };
+    }, [sel, cls]);
+    await p.close();
+    return r;
+  }
+  for (const [query, sel, cls, what] of [['?fresh&at=case', '.lid', 'opening', 'lid'], ['?fresh&at=book&shut', '#clasp', 'open', 'clasp']]) {
+    const still = await midway(query, sel, cls, 'reduce');
+    assert.equal(still.transform, 'none', `with reduced motion the ${what} still swings`);
+    assert.ok(still.opacity < 1, `with reduced motion the ${what} doesn't fade`);
+    assert.notEqual((await midway(query, sel, cls, 'no-preference')).transform, 'none', `the ${what} stopped swinging for everyone`);
+  }
+}
+
 assert.deepEqual(problems.filter(p => !p.startsWith('failed:')), [], 'problems while playing');
 await browser.close();
 server.close();
