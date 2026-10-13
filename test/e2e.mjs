@@ -136,7 +136,10 @@ assert.equal(await screen(), 'case');
 const ups = page.locator('.wheel button:first-child');
 for (let i = 0; i < 2; i++) await ups.nth(0).click();
 for (let i = 0; i < 4; i++) await ups.nth(1).click();
-for (let i = 0; i < 5 && !(await state()).caseOpen; i++) { await ups.nth(2).click(); await page.waitForTimeout(80); }
+// Roll the last wheel until the lock catches, within two of the bearing, then leave it be: the lid takes a moment
+// to swing open, and a click on it while it moves waits for a button that's about to go.
+const caught = s => s.caseOpen || Math.abs(+s.digits.join('') - 245) <= 2;
+for (let i = 0; i < 5 && !caught(await state()); i++) await ups.nth(2).click();
 await page.waitForFunction(() => window.__lanthorn.state.caseOpen, null, { timeout: 4000 });
 await page.waitForSelector('#toBook', { state: 'visible' });
 await noSideways('the case');
