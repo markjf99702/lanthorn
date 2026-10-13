@@ -396,6 +396,17 @@ const focused = p => p.evaluate(() => {
   await p.close();
 }
 
+// The N on the compass rose of the case's lock shows whole, above the ring.
+{
+  const p = await open('?fresh&at=case');
+  const rose = await p.evaluate(() => {
+    const svg = document.querySelector('.rose svg'), n = svg.querySelector('text').getBBox();
+    return { overflow: getComputedStyle(svg).overflow, top: n.y, edge: svg.viewBox.baseVal.y };
+  });
+  assert.ok(rose.overflow === 'visible' || rose.top >= rose.edge, `the top of the N is cut off at ${rose.edge}; it reaches ${rose.top.toFixed(1)}`);
+  await p.close();
+}
+
 assert.deepEqual(problems.filter(p => !p.startsWith('failed:')), [], 'problems while playing');
 await browser.close();
 server.close();
