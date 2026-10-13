@@ -138,6 +138,8 @@ canvas, .lever, .stud, .wheel .win, .hourwheel { -webkit-touch-callout: none; }
   border-radius: 3px 8px 8px 3px;
   box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .9), inset 0 0 60px rgba(120, 85, 40, .25);
   overflow-y: auto; -webkit-user-select: text; user-select: text;
+  /* A sideways swipe is left to the page, which turns it; up and down still scroll, and pinching still zooms. */
+  touch-action: pan-y pinch-zoom;
 }
 .page .date { font-family: var(--hand); font-size: 1.1rem; color: var(--ink-soft); margin: 0 0 .7rem; }
 .page .entry p { font-family: var(--hand); font-size: clamp(1.18rem, 4.9vw, 1.42rem); line-height: 1.55; margin: 0 0 .9rem; }

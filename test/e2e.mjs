@@ -47,6 +47,19 @@ async function hold(sel, ms) {
 async function signal(sel, pattern) {
   for (const c of pattern) await hold(sel, c === 'L' ? 650 : 120);
 }
+// Swipe a finger sideways across something, with the touch events a phone sends.
+const finger = await ctx.newCDPSession(page);
+async function swipe(sel, dx) {
+  const b = await page.locator(sel).boundingBox();
+  const x = b.x + b.width / 2 - dx / 2, y = b.y + b.height / 2;
+  await finger.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+  for (let i = 1; i <= 8; i++) {
+    await page.waitForTimeout(20);
+    await finger.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x + dx * i / 8, y }] });
+  }
+  await finger.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await page.waitForTimeout(300);
+}
 
 await page.goto(base + '?fresh');
 await page.evaluate(() => document.fonts.ready);
@@ -71,6 +84,11 @@ await page.keyboard.press('ArrowRight');
 assert.match(await page.locator('#jPage').innerText(), /four flashes and a rest/);
 await noSideways('the journal');
 assert.equal((await state()).page, 6, 'the journal remembers its page');
+// A finger turns the pages too: swipe to the left for the next, to the right for the one before.
+await swipe('#jPage', -250);
+assert.equal((await state()).page, 7, 'a swipe to the left turns the page on a phone');
+await swipe('#jPage', 250);
+assert.equal((await state()).page, 6, 'a swipe to the right turns it back');
 await back();
 assert.equal(await screen(), 'desk');
 
