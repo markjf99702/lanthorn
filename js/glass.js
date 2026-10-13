@@ -11,7 +11,7 @@ export function createGlass({ lens, ring, dial, wheel, wrap, drums, hint }) {
   const ctx = lens.getContext('2d');
   const rctx = ring.getContext('2d');
   const dctx = dial.getContext('2d');
-  let res = 232;
+  let res = 232, nextRes = 0;
   let img = null;
   let running = false, raf = 0;
   let lensPx = 320;
@@ -57,6 +57,8 @@ export function createGlass({ lens, ring, dial, wheel, wrap, drums, hint }) {
     if (!dirty && now - lastRender < 33) return;
     dirty = false;
     lastRender = now;
+    // A new resolution wipes the canvas, so it only changes straight before the next picture goes in.
+    if (nextRes) { setRes(nextRes); nextRes = 0; }
     const clock = (now - t0) / 1000;
     env = environment(state.hours, clock, state.keeper);
     const s = performance.now();
@@ -65,8 +67,8 @@ export function createGlass({ lens, ring, dial, wheel, wrap, drums, hint }) {
     ctx.putImageData(img, 0, 0);
     const took = performance.now() - s;
     // Keep it smooth on slow phones: fewer pixels if a frame takes too long, more if there's time to spare.
-    if (took > 26 && res > 150) setRes(res * 0.88);
-    else if (took < 9 && res < 300) setRes(res * 1.06);
+    if (took > 26 && res > 150) nextRes = res * 0.88;
+    else if (took < 9 && res < 300) nextRes = res * 1.06;
     if (Math.round(state.heading) !== shownHeading) drawReadout();
     if (Math.abs(state.hours - shownHours) > 0.001) drawDial();
     audio.setNight(env.starVis);

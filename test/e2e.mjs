@@ -23,12 +23,15 @@ const base = `http://localhost:${server.address().port}/`;
 
 const browser = await pw.chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true });
-const page = await ctx.newPage();
 const problems = [];
-page.on('pageerror', e => problems.push(e.message));
-page.on('console', m => { if (m.type() === 'error') problems.push(m.text()); });
-page.on('requestfailed', r => problems.push('failed: ' + r.url()));
-page.on('request', r => { if (!r.url().startsWith(base) && !r.url().startsWith('data:')) problems.push('left the site: ' + r.url()); });
+function watch(p) {
+  p.on('pageerror', e => problems.push(e.message));
+  p.on('console', m => { if (m.type() === 'error') problems.push(m.text()); });
+  p.on('requestfailed', r => problems.push('failed: ' + r.url()));
+  p.on('request', r => { if (!r.url().startsWith(base) && !r.url().startsWith('data:')) problems.push('left the site: ' + r.url()); });
+}
+const page = await ctx.newPage();
+watch(page);
 
 const state = () => page.evaluate(() => ({ ...window.__lanthorn.state }));
 const screen = () => page.evaluate(() => [...document.querySelectorAll('.screen')].find(s => !s.hidden)?.id);
@@ -227,6 +230,67 @@ assert.equal(await page.title(), 'Lanthorn', 'the page did not load offline');
 await page.evaluate(() => document.fonts.ready);
 assert.equal(await screen(), 'intro');
 await ctx.setOffline(false);
+
+// ---------- smaller checks, each on a page of its own ----------
+
+const more = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, serviceWorkers: 'block' });
+async function open(query, before) {
+  const p = await more.newPage();
+  watch(p);
+  if (before) await before(p);
+  await p.goto(base + query);
+  await p.evaluate(() => document.fonts.ready);
+  return p;
+}
+
+// The eyeglass draws fewer pixels when a frame takes too long and more when there's time, and the far rock
+// draws fewer on a slow phone. Resizing a canvas wipes it, so the new picture has to go up in the same
+// frame, or the view flashes black.
+const slowPhone = ms => pg => pg.addInitScript(ms => {
+  window.__resized = {}; window.__wiped = {}; window.__slow = ms;
+  // Only resizes made while drawing a frame count: opening a screen sizes its canvas before the first frame.
+  let drawing = 0;
+  const raf = window.requestAnimationFrame.bind(window);
+  window.requestAnimationFrame = cb => raf(t => { drawing++; try { cb(t); } finally { drawing--; } });
+  const wiped = new Set();
+  const width = Object.getOwnPropertyDescriptor(HTMLCanvasElement.prototype, 'width');
+  Object.defineProperty(HTMLCanvasElement.prototype, 'width', {
+    get() { return width.get.call(this); },
+    set(v) {
+      width.set.call(this, v);
+      if (!drawing) return;
+      const id = this.id;
+      window.__resized[id] = (window.__resized[id] || 0) + 1;
+      wiped.add(this);
+      // Still wiped once the frame's code has run: the screen would show it empty.
+      queueMicrotask(() => { if (wiped.has(this)) window.__wiped[id] = (window.__wiped[id] || 0) + 1; });
+    },
+  });
+  // Play a slow phone by holding up the drawing, which both of them time.
+  const put = CanvasRenderingContext2D.prototype.putImageData;
+  CanvasRenderingContext2D.prototype.putImageData = function (...a) {
+    wiped.delete(this.canvas);
+    for (const end = performance.now() + window.__slow; performance.now() < end;);
+    return put.apply(this, a);
+  };
+}, ms);
+async function resizes(query, id, ms) {
+  const p = await open(query, slowPhone(ms));
+  await p.waitForTimeout(1500);
+  await p.evaluate(() => { window.__slow = 0; });
+  await p.waitForTimeout(1000);
+  const r = await p.evaluate(id => ({ resized: window.__resized[id] || 0, wiped: window.__wiped[id] || 0 }), id);
+  await p.close();
+  return r;
+}
+{
+  const lens = await resizes('?fresh&at=glass&hours=23&heading=245&pitch=8', 'lens', 30);
+  assert.ok(lens.resized >= 3, `the eyeglass only changed its resolution ${lens.resized} times`);
+  assert.equal(lens.wiped, 0, 'the eyeglass went black when it changed its resolution');
+  const far = await resizes('?fresh&at=far', 'farView', 50);
+  assert.ok(far.resized >= 3, `the far rock only drew fewer pixels ${far.resized} times`);
+  assert.equal(far.wiped, 0, 'the far rock went black when it drew fewer pixels');
+}
 
 assert.deepEqual(problems.filter(p => !p.startsWith('failed:')), [], 'problems while playing');
 await browser.close();

@@ -16,7 +16,7 @@ export function createFar(els, { onPage, onDone }) {
   let stage = 'arrive';
   const t0 = performance.now();
 
-  let scale = 1;
+  let scale = 1, resize = false;
   function size() {
     const w = window.innerWidth, h = window.innerHeight;
     W = Math.round(Math.min(340, Math.max(150, w / 1.45)) * scale);
@@ -37,6 +37,8 @@ export function createFar(els, { onPage, onDone }) {
     beam += (target - beam) * (open ? 0.5 : 0.35);
     if (now - lastDraw < 45) return;
     lastDraw = now;
+    // Resizing the canvas wipes it, so it only happens straight before the next picture goes in.
+    if (resize) { resize = false; size(); }
     const t = (now - t0) / 1000;
     const env = environment(HOURS, t, 'S');
     env.lightOn = false;
@@ -47,7 +49,7 @@ export function createFar(els, { onPage, onDone }) {
     ctx.putImageData(img, 0, 0);
     // Fewer pixels on a slow phone.
     const took = performance.now() - s0;
-    if (took > 40 && scale > 0.55) { scale *= 0.85; size(); }
+    if (took > 40 && scale > 0.55) { scale *= 0.85; resize = true; }
   }
 
   // ---------- the shutter ----------
@@ -99,7 +101,7 @@ export function createFar(els, { onPage, onDone }) {
 
   page.addEventListener('click', () => onPage());
 
-  window.addEventListener('resize', () => { if (running) size(); });
+  window.addEventListener('resize', () => { if (running) { resize = true; lastDraw = 0; } });
 
   return {
     // Arriving: dark, the lamp out, a page on the ledge.
