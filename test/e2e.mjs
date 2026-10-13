@@ -418,6 +418,16 @@ const focused = p => p.evaluate(() => {
   await p.close();
 }
 
+// A test address is for one visit: it comes off the address bar, so a reload carries on instead of starting over.
+{
+  const p = await open('?fresh&at=journal&page=3&utm=x');
+  assert.equal(new URL(p.url()).search, '?utm=x', 'the test address stayed in the address bar');
+  await p.click('#jNext');
+  await p.reload();
+  assert.equal((await state(p)).page, 4, 'a reload went back to the test address and started over');
+  await p.close();
+}
+
 // While the wrong studs shake loose the plate takes no more presses, so a press then isn't thrown away with
 // them, and once they're out it takes presses again.
 {

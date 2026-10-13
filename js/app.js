@@ -349,5 +349,12 @@ else if (at === 'end') showEnd(true);
 else if (at && SCREENS.includes(at)) { if (at === 'case') drawCase(); show(at, { back: at === 'desk' || at === 'intro' ? null : 'desk' }); if (at === 'journal') drawJournal(); }
 else if (state.done) showEnd(true);
 else show('intro');
+// They're for one visit, so they come off the address: otherwise every reload (and Start again) did them over,
+// and ?fresh wiped everything each time.
+const ONCE = ['fresh', 'at', 'hours', 'heading', 'pitch', 'page', 'keeper', 'shut', 'awake', 'lamp'];
+if (ONCE.some(k => q.has(k))) {
+  for (const k of ONCE) q.delete(k);
+  try { history.replaceState(null, '', location.pathname + (String(q) ? '?' + q : '') + location.hash); } catch { /* an address that can't be changed */ }
+}
 
 window.__lanthorn = { state, show, glass, book, far, link, audio };
