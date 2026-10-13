@@ -437,23 +437,29 @@ const focused = p => p.evaluate(() => {
 // With reduced motion the case's lid and the book's clasp fade away instead of swinging open, in the same
 // time; without it they still swing.
 {
-  async function midway(query, sel, cls, reducedMotion) {
+  // Each one is stopped 400 ms in and looked at there, so a busy machine can't look before it has started.
+  async function midway(query, sel, cls, name, reducedMotion) {
     const p = await open(query, pg => pg.emulateMedia({ reducedMotion }));
-    const r = await p.evaluate(async ([sel, cls]) => {
+    const r = await p.evaluate(([sel, cls, name]) => {
       const el = document.querySelector(sel);
       el.classList.add(cls);
-      await new Promise(done => setTimeout(done, 400));
+      const a = el.getAnimations().find(a => a.animationName === name);
+      if (!a) return { missing: true };
+      a.pause();
+      a.currentTime = 400;
       const cs = getComputedStyle(el);
-      return { transform: cs.transform, opacity: +cs.opacity };
-    }, [sel, cls]);
+      return { transform: cs.transform, opacity: +cs.opacity, ms: a.effect.getComputedTiming().duration };
+    }, [sel, cls, name]);
     await p.close();
+    assert.ok(!r.missing, `${sel} has no ${name} with ${reducedMotion}`);
     return r;
   }
-  for (const [query, sel, cls, what] of [['?fresh&at=case', '.lid', 'opening', 'lid'], ['?fresh&at=book&shut', '#clasp', 'open', 'clasp']]) {
-    const still = await midway(query, sel, cls, 'reduce');
+  for (const [query, sel, cls, name, ms, what] of [['?fresh&at=case', '.lid', 'opening', 'lidopen', 900, 'lid'], ['?fresh&at=book&shut', '#clasp', 'open', 'claspopen', 1200, 'clasp']]) {
+    const still = await midway(query, sel, cls, name, 'reduce');
     assert.equal(still.transform, 'none', `with reduced motion the ${what} still swings`);
     assert.ok(still.opacity < 1, `with reduced motion the ${what} doesn't fade`);
-    assert.notEqual((await midway(query, sel, cls, 'no-preference')).transform, 'none', `the ${what} stopped swinging for everyone`);
+    assert.equal(still.ms, ms, `with reduced motion the ${what} takes a different time, and the screen changes before or after it`);
+    assert.notEqual((await midway(query, sel, cls, name, 'no-preference')).transform, 'none', `the ${what} stopped swinging for everyone`);
   }
 }
 
