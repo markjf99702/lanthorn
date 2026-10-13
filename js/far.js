@@ -1,7 +1,7 @@
 // The far rock: the lamp room, Nell's lighthouse dark across the water, and the shutter.
 import { render, environment, dither, FAR, HOME } from './world.js';
 import * as audio from './audio.js';
-import { SHORT_MAX } from './book.js';
+import { SHORT_MAX, pressTime } from './book.js';
 
 const HOURS = 20.1;
 const TOWARDS_HOME = (Math.atan2(HOME.x - FAR.x, HOME.y - FAR.y) * 180 / Math.PI + 360) % 360;
@@ -60,7 +60,7 @@ export function createFar(els, { onPage, onDone }) {
     if (stage !== 'lamp' || finished) return;
     if (e && e.pointerId !== undefined) lever.setPointerCapture(e.pointerId);
     if (open) return;
-    open = true; openAt = performance.now();
+    open = true; openAt = pressTime(e);
     clearTimeout(idle);
     lever.classList.add('down');
     warm.classList.add('on');
@@ -68,13 +68,13 @@ export function createFar(els, { onPage, onDone }) {
     if (text.textContent) say('');
   }
 
-  function release() {
+  function release(e) {
     if (!open) return;
     open = false;
     lever.classList.remove('down');
     warm.classList.remove('on');
     audio.shutter(false);
-    const dur = (performance.now() - openAt) / 1000;
+    const dur = (pressTime(e) - openAt) / 1000;
     seq.push(dur < SHORT_MAX ? 'S' : 'L');
     if (seq.length >= 8) return finish();
     idle = setTimeout(finish, 2600);
@@ -98,8 +98,8 @@ export function createFar(els, { onPage, onDone }) {
   lever.addEventListener('pointerdown', e => { e.preventDefault(); press(e); });
   lever.addEventListener('pointerup', release);
   lever.addEventListener('pointercancel', release);
-  lever.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); press(); } });
-  lever.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') release(); });
+  lever.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); press(e); } });
+  lever.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') release(e); });
   lever.addEventListener('contextmenu', e => e.preventDefault());
 
   page.addEventListener('click', () => onPage());

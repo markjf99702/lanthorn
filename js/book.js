@@ -13,6 +13,14 @@ for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
 
 export const SHORT_MAX = 0.36; // seconds: a press shorter than this is a short flash
 
+// When a press began or ended: the input event's own time, not when the page got round to it, so a slow frame
+// can't make a press look shorter or longer than it was. Without an event, or if the browser's event times
+// aren't on the page's clock, it's now.
+export function pressTime(e) {
+  const now = performance.now();
+  return e && e.timeStamp > 0 && Math.abs(now - e.timeStamp) < 10000 ? e.timeStamp : now;
+}
+
 export function createBook(els, { onOpen, onWake, onLink }) {
   const { clasp, panel, marks, hint } = els;
   const pctx = panel.getContext('2d');
@@ -91,18 +99,18 @@ export function createBook(els, { onOpen, onWake, onLink }) {
     if (e && e.button > 0) return;
     if (state.awake) return;
     if (pressing) return;
-    pressing = true; pressAt = performance.now();
+    pressing = true; pressAt = pressTime(e);
     clearTimeout(evalTimer);
     audio.pressStart();
     if (e && e.pointerId !== undefined) panel.setPointerCapture(e.pointerId);
   }
 
-  function up() {
+  function up(e) {
     if (state.awake) return;
     if (!pressing) return;
     pressing = false;
     audio.pressEnd();
-    const dur = (performance.now() - pressAt) / 1000;
+    const dur = (pressTime(e) - pressAt) / 1000;
     seq.push(dur < SHORT_MAX ? 'S' : 'L');
     if (seq.length > 12) seq.shift();
     showMarks();
@@ -125,17 +133,17 @@ export function createBook(els, { onOpen, onWake, onLink }) {
   }
 
   panel.addEventListener('pointerdown', e => { if (state.awake) return; e.preventDefault(); down(e); });
-  panel.addEventListener('pointerup', () => up());
-  panel.addEventListener('pointercancel', () => up());
+  panel.addEventListener('pointerup', up);
+  panel.addEventListener('pointercancel', up);
   panel.addEventListener('click', () => { if (state.awake) onLink(); });
   panel.addEventListener('contextmenu', e => e.preventDefault());
   panel.addEventListener('keydown', e => {
     if (e.key !== ' ' && e.key !== 'Enter') return;
     e.preventDefault();
     if (state.awake) { if (!e.repeat) onLink(); return; }
-    if (!e.repeat) down();
+    if (!e.repeat) down(e);
   });
-  panel.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') up(); });
+  panel.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') up(e); });
 
   function frame(now) {
     if (!running) return;
