@@ -11,10 +11,12 @@ for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
   if (!corner) CELLS.push([x, y]);
 }
 
-// Seconds: a press shorter than this is a short flash. It sits halfway between the light's two flashes (BEAT in
-// world.js) by ratio: 2.2 times the short one, and the long one is 2.2 times it. So a copy of either can be some way
-// off and still read as that flash, and a quick hold still reads as a long one.
-export const SHORT_MAX = 0.525;
+// Seconds: a press shorter than this is a short flash. It sits where two kinds of player do about as well as each
+// other: someone copying the light (BEAT in world.js), who holds a short flash a quarter too long or more, and someone
+// who taps for a short flash and gives a long one a quick hold of about three-quarters of a second. In the game lab's
+// player models each answers the light's hardest pattern first time about 80% of the time here; at 0.36 s the copier
+// got 34%, and at 0.525 s the quick holder got 61%.
+export const SHORT_MAX = 0.45;
 
 // When a press began or ended: the input event's own time, not when the page got round to it, so a slow frame
 // can't make a press look shorter or longer than it was. Without an event, or if the browser's event times
