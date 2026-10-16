@@ -353,6 +353,19 @@ async function resizes(query, id, ms) {
       assert.ok(b.x >= 0 && b.y >= 0 && b.x + b.width <= W && b.y + b.height <= H, `${sel} on ${where} runs off a ${W}x${H} screen, at ${[b.x, b.y, b.width, b.height].map(Math.round)}`);
     }
   }
+  // On a first visit the desk names its three things, and the case's name stays clear of Stuck? under it.
+  await p.goto(base + '?fresh');
+  await p.click('#begin');
+  for (const [width, height] of [[W, H], [740, 360]]) {
+    await p.setViewportSize({ width, height });
+    const [name, stuck] = await p.evaluate(() => ['.case-thing .thing-label', '#stuckBtn'].map(sel => {
+      const words = document.createRange();
+      words.selectNodeContents(document.querySelector(sel));
+      const b = words.getBoundingClientRect();
+      return [b.top, b.bottom];
+    }));
+    assert.ok(name[1] + 8 <= stuck[0], `the case's name runs into Stuck? on a ${width}x${height} screen, ${Math.round(stuck[0] - name[1])} px apart`);
+  }
   await p.close();
 }
 

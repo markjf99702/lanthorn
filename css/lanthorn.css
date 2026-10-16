@@ -360,7 +360,8 @@ canvas, .lever, .stud, .wheel .win, .hourwheel { -webkit-touch-callout: none; }
 @media (max-height: 500px) {
   .screen:not(.reader, .far) { padding: max(8px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
 
-  .desk-in { grid-template-columns: 1.1fr 1.6fr .7fr; grid-template-rows: 1fr; gap: 2vw; padding: 0 12px; }
+  /* Room under the row for Stuck?, or on a first visit the case's name sits right on it. */
+  .desk-in { grid-template-columns: 1.1fr 1.6fr .7fr; grid-template-rows: 1fr; gap: 2vw; padding: 0 12px 2rem; }
   .case-thing { grid-column: 2; grid-row: 1; align-self: center; width: min(100%, 440px); }
   .journal-thing { grid-column: 1; grid-row: 1; align-self: center; margin-top: 8vh; width: min(100%, 230px, 42vh); width: min(100%, 230px, 42dvh); }
   .glass-thing { grid-column: 3; grid-row: 1; align-self: center; margin-top: 4vh; width: min(80%, 104px, 17vh); width: min(80%, 104px, 17dvh); }
