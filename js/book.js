@@ -11,9 +11,10 @@ for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
   if (!corner) CELLS.push([x, y]);
 }
 
-// Seconds: a press shorter than this is a short flash. It sits well clear of both of the light's flashes (BEAT in
-// world.js), so a copy of either can be some way off and still read as that flash.
-export const SHORT_MAX = 0.66;
+// Seconds: a press shorter than this is a short flash. It sits halfway between the light's two flashes (BEAT in
+// world.js) by ratio: 2.2 times the short one, and the long one is 2.2 times it. So a copy of either can be some way
+// off and still read as that flash, and a quick hold still reads as a long one.
+export const SHORT_MAX = 0.525;
 
 // When a press began or ended: the input event's own time, not when the page got round to it, so a slow frame
 // can't make a press look shorter or longer than it was. Without an event, or if the browser's event times

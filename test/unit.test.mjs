@@ -75,6 +75,9 @@ test('the line between a short press and a long one sits well clear of both flas
   // to a press. A short flash held for twice as long still reads short, and a long one cut a third short still long.
   assert.ok(BEAT.S * 2 < SHORT_MAX, `a press twice as long as the ${BEAT.S} s short flash reads as a long one`);
   assert.ok(BEAT.L * 2 / 3 >= SHORT_MAX, `a press a third shorter than the ${BEAT.L} s long flash reads as a short one`);
+  // And halfway between them by ratio, the way lengths of time are judged, so neither kind of press gets the squeeze.
+  const over = SHORT_MAX / BEAT.S, under = BEAT.L / SHORT_MAX;
+  assert.ok(Math.abs(over / under - 1) < 0.05, `the line at ${SHORT_MAX} s is ${over.toFixed(2)} times the short flash, but the long one is only ${under.toFixed(2)} times the line`);
 });
 
 test('Nell’s page about the light agrees with whatever light is being kept', () => {
