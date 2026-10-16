@@ -6,6 +6,9 @@ import * as audio from './audio.js';
 const FOV = 24;           // degrees across the lens
 const PITCH = [-9, 14];   // how far you can tilt it down and up
 const DIGITS = 20;        // levels a colour channel, for the old-photograph grain
+// A short screen, such as a phone on its side: the counter, the wheel and the hint are drawn smaller there (the
+// css says the same height), and the lens takes what's left, so the counter and the wheel stay on the screen.
+const SHORT = matchMedia('(max-height: 500px)');
 
 export function createGlass({ lens, ring, dial, wheel, wrap, drums, hint }) {
   const ctx = lens.getContext('2d');
@@ -24,7 +27,7 @@ export function createGlass({ lens, ring, dial, wheel, wrap, drums, hint }) {
 
   function size() {
     const w = window.innerWidth, h = window.innerHeight;
-    lensPx = Math.max(200, Math.min(w - 84, h - 310, 500));
+    lensPx = SHORT.matches ? Math.max(110, Math.min(w - 84, h - 210, 500)) : Math.max(200, Math.min(w - 84, h - 310, 500));
     wrap.style.setProperty('--lens', lensPx + 'px');
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const rs = lensPx + 64;

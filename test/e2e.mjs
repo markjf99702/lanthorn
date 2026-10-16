@@ -334,6 +334,28 @@ async function resizes(query, id, ms) {
   await p.close();
 }
 
+// With the phone on its side nothing runs off the screen: the desk's three things, the eyeglass's counter, ring,
+// wheel and hint, the case and its line, the book's plate and its line, and the picture in the open book.
+{
+  const W = 844, H = 390;
+  const p = await open('?fresh&at=desk', pg => pg.setViewportSize({ width: W, height: H }));
+  for (const [query, sels, where] of [
+    ['?fresh&at=desk', ['#toCase', '#toJournal', '#toGlass', '#stuckBtn'], 'the desk'],
+    ['?fresh&at=glass', ['.readout', '#ring', '#hourWheel', '#glassHint'], 'the eyeglass'],
+    ['?fresh&at=case', ['.lid', '#caseShut .hint'], 'the case'],
+    ['?fresh&at=book&shut', ['#cover', '#cover .hint'], 'the book'],
+    ['?fresh&at=book', ['#bookLine', '#panel', '#panelHint'], 'the open book'],
+  ]) {
+    await p.goto(base + query);
+    await p.waitForTimeout(300);
+    for (const sel of sels) {
+      const b = await p.locator(sel).boundingBox();
+      assert.ok(b.x >= 0 && b.y >= 0 && b.x + b.width <= W && b.y + b.height <= H, `${sel} on ${where} runs off a ${W}x${H} screen, at ${[b.x, b.y, b.width, b.height].map(Math.round)}`);
+    }
+  }
+  await p.close();
+}
+
 // Pinched in to read her hand, a sideways drag moves the view along the line and leaves the page where it is.
 // Pinched out again, a swipe turns the page as before.
 {

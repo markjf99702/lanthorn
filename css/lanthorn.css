@@ -349,6 +349,44 @@ canvas, .lever, .stud, .wheel .win, .hourwheel { -webkit-touch-callout: none; }
 .sound[aria-pressed="false"] .mute { display: inline; }
 .noscript { position: fixed; inset: 0; display: grid; place-items: center; padding: 2rem; text-align: center; }
 
+/* ---------- a phone on its side ---------- */
+/* A short screen keeps the desk's three things in a row and draws the eyeglass, the case and the book smaller, so
+   nothing runs off the top or the bottom. glass.js sizes the lens to fit what's left (SHORT there). */
+@media (max-height: 500px) {
+  .screen:not(.reader, .far) { padding: max(8px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+
+  .desk-in { grid-template-columns: 1.1fr 1.6fr .7fr; grid-template-rows: 1fr; gap: 2vw; padding: 0 12px; }
+  .case-thing { grid-column: 2; grid-row: 1; align-self: center; width: min(100%, 440px); }
+  .journal-thing { grid-column: 1; grid-row: 1; align-self: center; margin-top: 8vh; width: min(100%, 230px, 42vh); width: min(100%, 230px, 42dvh); }
+  .glass-thing { grid-column: 3; grid-row: 1; align-self: center; margin-top: 4vh; width: min(80%, 104px, 17vh); width: min(80%, 104px, 17dvh); }
+
+  .glass-in { gap: 8px; }
+  .readout { margin-bottom: 22px; padding: 4px 10px; }
+  .drum { font-size: 1.15rem; }
+  .deg { font-size: 1rem; }
+  .hourwheel { height: 52px; margin-top: 26px; }
+  .glass .hint { max-width: 36rem; margin-top: .2rem; font-size: .85rem; }
+
+  .lid, .tray { width: min(100%, 560px, (100vh - 4.5rem) * 4 / 3); width: min(100%, 560px, (100dvh - 4.5rem) * 4 / 3); }
+  /* The lock goes by the screen's height here, as it goes by the width on a phone held upright, so it fits the lid. */
+  .lock { gap: clamp(10px, 4.6vh, 26px); padding: clamp(14px, 4.6vh, 22px) clamp(14px, 5.75vh, 30px); }
+  .rose { width: clamp(56px, 18.4vh, 84px); }
+  .wheels { gap: clamp(6px, 2.3vh, 10px); }
+  .wheel .win { width: clamp(38px, 12.65vh, 50px); height: clamp(56px, 18.4vh, 72px); --row: clamp(28px, 9.2vh, 36px); }
+  .wheel .strip span { font-size: clamp(1.6rem, 6.9vh, 2rem); }
+  .case .hint { margin-top: .6rem; }
+  .letter-thing { font-size: clamp(.8rem, 3.8vh, 1.05rem); font-size: clamp(.8rem, 3.8dvh, 1.05rem); }
+
+  /* The plate's studs are as big as the cover lets them be, so the cover takes the whole height and its line goes
+     beside it. */
+  .cover { width: min(100%, 420px, (100vh - 1rem) * 3 / 4); width: min(100%, 420px, (100dvh - 1rem) * 3 / 4); }
+  .cover .hint { left: 100%; right: auto; bottom: .4rem; width: min(12rem, (100vw - 100%) / 2 - 2.4rem); margin-left: 1.2rem; text-align: left; }
+  .opened { width: min(100%, 560px); padding: .8rem 1.4rem; }
+  .book-line { font-size: 1.05rem; margin-bottom: .5rem; }
+  .panel-frame { width: min(100%, (100vh - 9.5rem) * 4 / 3); width: min(100%, (100dvh - 9.5rem) * 4 / 3); }
+  .marks { min-height: 1.3em; margin-top: .3rem; font-size: 1.3rem; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .screen, .page-turn, .intro-text p, .intro .btn, .intro .small { animation-duration: .01s !important; animation-delay: 0s !important; }
   .lamp { animation: none; }
