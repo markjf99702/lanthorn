@@ -48,7 +48,7 @@ async function hold(sel, ms) {
   await page.waitForTimeout(260);
 }
 async function signal(sel, pattern) {
-  for (const c of pattern) await hold(sel, c === 'L' ? 650 : 120);
+  for (const c of pattern) await hold(sel, c === 'L' ? 1000 : 120);
 }
 // Swipe a finger sideways across something, with the touch events a phone sends.
 const finger = await ctx.newCDPSession(page);
@@ -494,13 +494,13 @@ const focused = p => p.evaluate(() => {
 }
 
 // A press lasts as long as it was held, even when the page is too busy to notice at once. First a key goes down
-// and the page is held up for 600 ms before it hears, then the key comes up as soon as it does: a long press.
-// Then a key comes up straight away, but the page hears 600 ms late: a short one.
+// and the page is held up for a second before it hears, then the key comes up as soon as it does: a long press.
+// Then a key comes up straight away, but the page hears a second late: a short one.
 {
   const latePresses = (p, sel) => p.evaluate(sel => {
     const el = document.querySelector(sel);
     const key = type => new KeyboardEvent(type, { key: ' ', bubbles: true, cancelable: true });
-    const busy = () => { for (const end = performance.now() + 600; performance.now() < end;); };
+    const busy = () => { for (const end = performance.now() + 1000; performance.now() < end;); };
     const longPress = key('keydown');
     busy();
     el.dispatchEvent(longPress);

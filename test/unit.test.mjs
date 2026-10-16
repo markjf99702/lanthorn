@@ -69,6 +69,14 @@ test('answering the light by copying it works: a press as long as a flash reads 
   }
 });
 
+test('the line between a short press and a long one sits well clear of both flashes', () => {
+  assert.ok(BEAT.S < SHORT_MAX && SHORT_MAX < BEAT.L, `the line at ${SHORT_MAX} s isn't between the flashes`);
+  // Copying a light, people hold a short flash too long and a long one too short, and a busy phone can add a little
+  // to a press. A short flash held for twice as long still reads short, and a long one cut a third short still long.
+  assert.ok(BEAT.S * 2 < SHORT_MAX, `a press twice as long as the ${BEAT.S} s short flash reads as a long one`);
+  assert.ok(BEAT.L * 2 / 3 >= SHORT_MAX, `a press a third shorter than the ${BEAT.L} s long flash reads as a short one`);
+});
+
 test('Nell’s page about the light agrees with whatever light is being kept', () => {
   const page = JOURNAL.find(p => p.sketch === 'marks');
   const says = keeper => page.lines.map(l => (typeof l === 'function' ? l(keeper) : l)).join(' ');
