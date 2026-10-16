@@ -356,6 +356,21 @@ async function resizes(query, id, ms) {
   await p.close();
 }
 
+// Stuck? and the case's wheel buttons are at least 44 px tall, enough for a thumb.
+{
+  const p = await open('?fresh&at=desk');
+  const tall = async (sel, what) => {
+    for (const el of await p.locator(sel).all()) {
+      const { height } = await el.boundingBox();
+      assert.ok(height >= 44, `${what} is only ${Math.round(height)} px tall`);
+    }
+  };
+  await tall('#stuckBtn', 'Stuck?');
+  await p.click('#toCase');
+  await tall('.wheel button', 'a wheel button on the case');
+  await p.close();
+}
+
 // Pinched in to read her hand, a sideways drag moves the view along the line and leaves the page where it is.
 // Pinched out again, a swipe turns the page as before.
 {

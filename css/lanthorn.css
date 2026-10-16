@@ -116,7 +116,7 @@ canvas, .lever, .stud, .wheel .win, .hourwheel { -webkit-touch-callout: none; }
 .desk.opened .case-thing svg { opacity: .92; }
 .stuck {
   position: absolute; bottom: max(14px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
-  appearance: none; border: 0; background: none; color: rgba(233, 220, 194, .45); font-style: italic; font-size: .88rem; cursor: pointer; padding: .5rem 1rem;
+  appearance: none; border: 0; background: none; color: rgba(233, 220, 194, .6); font-style: italic; font-size: .88rem; cursor: pointer; padding: .5rem 1rem; min-height: 44px;
 }
 .stuck:hover { color: rgba(233, 220, 194, .8); }
 
@@ -214,7 +214,7 @@ canvas, .lever, .stud, .wheel .win, .hourwheel { -webkit-touch-callout: none; }
 .rose svg { display: block; width: 100%; overflow: visible; } /* the N stands above the ring */
 .wheels { display: flex; gap: clamp(6px, 2vw, 10px); }
 .wheel { display: flex; flex-direction: column; align-items: center; }
-.wheel button { appearance: none; border: 0; background: none; cursor: pointer; color: #4f360f; font-size: 1.1rem; line-height: 1; padding: 6px 10px; }
+.wheel button { appearance: none; border: 0; background: none; cursor: pointer; color: #4f360f; font-size: 1.1rem; line-height: 1; padding: 6px 10px; min-height: 44px; }
 .wheel .win {
   width: clamp(38px, 11vw, 50px); height: clamp(56px, 16vw, 72px); border-radius: 6px; overflow: hidden; position: relative; touch-action: none; cursor: ns-resize;
   background: linear-gradient(180deg, #000 0%, #2b2218 30%, #3a2f22 50%, #2b2218 70%, #000 100%);
