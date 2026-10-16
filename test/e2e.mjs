@@ -356,6 +356,27 @@ async function resizes(query, id, ms) {
   await p.close();
 }
 
+// Once you've finished, every visit opens on the end, so the line back to junkdrawer.works and the privacy page is
+// there too, under the buttons and fading in with them. On a phone on its side the end scrolls to reach it.
+{
+  const p = await open('?fresh&at=end');
+  const foot = p.locator('#end .jd-foot');
+  assert.deepEqual(await foot.locator('a').evaluateAll(as => as.map(a => [a.textContent, a.href])), [['Part of junkdrawer.works', 'https://junkdrawer.works/'], ['Privacy', 'https://junkdrawer.works/privacy.html']], 'the end has no line back to junkdrawer.works');
+  await p.waitForFunction(() => getComputedStyle(document.querySelector('#end .jd-foot')).opacity === '1', null, { timeout: 5000 });
+  const fades = await p.evaluate(() => {
+    document.getElementById('end').classList.remove('quick');
+    return ['#endBtns', '#end .jd-foot'].map(s => { const cs = getComputedStyle(document.querySelector(s)); return `${cs.animationDelay} ${cs.animationDuration}`; });
+  });
+  assert.equal(fades[1], fades[0], 'the line under the end\'s buttons doesn\'t fade in with them');
+  for (const [width, height] of [[844, 390], [568, 320]]) {
+    await p.setViewportSize({ width, height });
+    await foot.scrollIntoViewIfNeeded();
+    const b = await foot.boundingBox();
+    assert.ok(b.y >= 0 && b.y + b.height <= height, `the line under the end's buttons can't be reached on a ${width}x${height} screen`);
+  }
+  await p.close();
+}
+
 // Stuck? and the case's wheel buttons are at least 44 px tall, enough for a thumb.
 {
   const p = await open('?fresh&at=desk');
