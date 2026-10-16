@@ -465,6 +465,60 @@ const focused = p => p.evaluate(() => {
   await p.close();
 }
 
+// The phone's back button puts down what's picked up, as the back arrow does, and from the desk it leaves the game.
+// The game keeps one history entry of its own while something is picked up, and leaves none behind to catch a press:
+// not when the back arrow puts something down, not two deep (the case, then the letter in it), not after a reload
+// with something picked up, and not after Start again.
+{
+  const elsewhere = base + 'icon.svg';
+  const start = query => open(query, pg => pg.goto(elsewhere));
+  const settled = p => p.waitForFunction(() => history.state === null, null, { timeout: 3000 });
+  async function pressBack(p, to, what) {
+    await p.goBack();
+    if (to === 'elsewhere') return assert.equal(p.url(), elsewhere, `back from ${what} didn't leave the game`);
+    await p.waitForFunction(to => [...document.querySelectorAll('.screen')].find(s => !s.hidden)?.id === to, to, { timeout: 3000 }).catch(() => {});
+    assert.equal(await screen(p), to, `back from ${what} didn't go back to the ${to}`);
+  }
+  let p = await start('?fresh');
+  await p.click('#begin');
+  await p.click('#toJournal');
+  await pressBack(p, 'desk', 'the journal');
+  await p.evaluate(() => { window.__lanthorn.state.caseOpen = true; });
+  await p.click('#toCase');
+  await p.click('#toLetter');
+  await pressBack(p, 'case', 'the letter');
+  await pressBack(p, 'desk', 'the case');
+  await p.click('#toGlass');
+  await p.click('#back');
+  await settled(p);
+  await pressBack(p, 'elsewhere', 'the desk');
+  await p.close();
+  // A reload with the journal open.
+  p = await start('?fresh');
+  await p.click('#begin');
+  await p.click('#toJournal');
+  await p.reload();
+  await settled(p);
+  await p.click('#begin');
+  await pressBack(p, 'elsewhere', 'the desk after a reload');
+  await p.close();
+  // Back from her last page on the far rock gives you the lamp.
+  p = await start('?fresh&at=far');
+  await p.evaluate(() => { document.getElementById('sillPage').hidden = false; });
+  await p.click('#sillPage');
+  await pressBack(p, 'far', 'her last page');
+  await p.waitForSelector('#lever', { state: 'visible' });
+  await p.close();
+  // After the end, back from the eyeglass goes back to the end, and Start again leaves nothing behind.
+  p = await start('?fresh&at=end');
+  await p.click('#endLook');
+  await pressBack(p, 'end', 'the eyeglass');
+  await Promise.all([p.waitForEvent('load'), p.click('#endAgain')]);
+  await settled(p);
+  await pressBack(p, 'elsewhere', 'the title card after Start again');
+  await p.close();
+}
+
 // While the wrong studs shake loose the plate takes no more presses, so a press then isn't thrown away with
 // them, and once they're out it takes presses again.
 {

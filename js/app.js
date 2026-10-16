@@ -36,19 +36,41 @@ function show(id, { back = null } = {}) {
   audio.scene(SOUND[id]);
   const focus = { case: state.caseOpen ? 'toBook' : null }[id];
   if (focus) setTimeout(() => $(focus)?.focus({ preventScroll: true }), 50);
+  keepHistory();
 }
 let farRunning = false;
 
-$('back').addEventListener('click', () => {
+// Put down what's picked up: the back arrow, Escape and the phone's own back button all come here.
+function goBack() {
   if (!backTo) return;
   if (backTo === 'end') return showEnd(true);
   const from = current;
   show(backTo, { back: parentOf(backTo) });
   // Back from her last page, the lamp is yours.
   if (from === 'letter' && current === 'far') far.lamp();
-});
+}
+$('back').addEventListener('click', goBack);
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('hints').hidden) closeHints(); else if (e.key === 'Escape' && backTo) $('back').click(); });
 const parentOf = id => ({ letter: 'desk', case: 'desk', book: 'desk', journal: 'desk', glass: 'desk' }[id] || null);
+
+// While something is picked up the game keeps one history entry of its own on top of the page's, so the phone's back
+// button or gesture puts it down, as the back arrow does, instead of leaving the game. The intro, the desk, the far
+// rock and the end keep none, so back from there leaves as it always has. One left behind by a reload is taken off
+// when the page opens again.
+let stepping = false; // the game went back a step itself to take its entry off, so the popstate that brings isn't a press
+function keepHistory() {
+  if (stepping) return; // the popstate on its way squares things up
+  const ours = history.state?.lanthorn === 1;
+  try {
+    if (backTo && !ours) history.pushState({ lanthorn: 1 }, '');
+    else if (!backTo && ours) { stepping = true; history.back(); }
+  } catch { stepping = false; /* a page whose history can't be changed */ }
+}
+addEventListener('popstate', () => {
+  if (stepping) stepping = false;
+  else goBack();
+  keepHistory();
+});
 
 // ---------- the intro ----------
 
@@ -343,18 +365,20 @@ for (const k of ['hours', 'heading', 'pitch', 'page']) if (q.has(k) && Number.is
 tidy(state);
 if (q.has('keeper') && /^[SL]{1,8}$/.test(q.get('keeper'))) state.keeper = q.get('keeper');
 const at = q.get('at');
+// They're for one visit, so they come off the address: otherwise every reload (and Start again) did them over,
+// and ?fresh wiped everything each time. That happens before a screen is shown, so it's the page's own history entry
+// that's tidied, not one the game puts on top of it.
+const ONCE = ['fresh', 'at', 'hours', 'heading', 'pitch', 'page', 'keeper', 'shut', 'awake', 'lamp'];
+if (ONCE.some(k => q.has(k))) {
+  const rest = new URLSearchParams(q);
+  for (const k of ONCE) rest.delete(k);
+  try { history.replaceState(history.state, '', location.pathname + (String(rest) ? '?' + rest : '') + location.hash); } catch { /* an address that can't be changed */ }
+}
 if (at === 'book' || at === 'far') Object.assign(state, { caseOpen: true, claspOpen: q.has('shut') ? false : true, awake: q.has('awake') });
 if (at === 'far') { show('far'); far.arrive(); if (q.has('lamp')) far.lamp(); }
 else if (at === 'end') showEnd(true);
 else if (at && SCREENS.includes(at)) { if (at === 'case') drawCase(); show(at, { back: at === 'desk' || at === 'intro' ? null : 'desk' }); if (at === 'journal') drawJournal(); }
 else if (state.done) showEnd(true);
 else show('intro');
-// They're for one visit, so they come off the address: otherwise every reload (and Start again) did them over,
-// and ?fresh wiped everything each time.
-const ONCE = ['fresh', 'at', 'hours', 'heading', 'pitch', 'page', 'keeper', 'shut', 'awake', 'lamp'];
-if (ONCE.some(k => q.has(k))) {
-  for (const k of ONCE) q.delete(k);
-  try { history.replaceState(null, '', location.pathname + (String(q) ? '?' + q : '') + location.hash); } catch { /* an address that can't be changed */ }
-}
 
 window.__lanthorn = { state, show, glass, book, far, link, audio };
