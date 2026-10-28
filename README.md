@@ -51,5 +51,5 @@ To put it online with GitHub Pages: **Settings → Pages → Build and deploymen
 - `js/textures.js`: the wood, paper and leather, made on a canvas when the page opens.
 - `js/store.js`: what you’ve opened so far, kept in localStorage.
 - `fonts/`: IM Fell English, La Belle Aurore and Cormorant Garamond (SIL Open Font License), served from here so nothing loads from elsewhere.
-- `sw.js`: keeps a copy for playing offline.
+- `sw.js`: keeps a copy for playing offline. On a connection that isn't answering, a page opens from that copy after four seconds. `FILES` in it is a fingerprint of the files it keeps: change one and `npm test` says what to set it to, so a release never leaves the copy half old.
 - `scripts/build.mjs`: bundles it into one HTML file.
